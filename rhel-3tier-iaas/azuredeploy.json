@@ -689,9 +689,9 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('Publisher')]",
-            "offer": "[variables('Offer')]",
-            "sku": "[variables('redHatsku')]",
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('imageSKU')]",
             "version": "latest"
           },
           "osDisk": {
@@ -752,9 +752,9 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('Publisher')]",
-            "offer": "[variables('Offer')]",
-            "sku": "[variables('redHatsku')]",
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('imageSKU')]",
             "version": "latest"
           },
           "osDisk": {
@@ -815,9 +815,9 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('Publisher')]",
-            "offer": "[variables('Offer')]",
-            "sku": "[variables('redHatsku')]",
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('imageSKU')]",
             "version": "latest"
           },
           "osDisk": {
@@ -870,9 +870,9 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('Publisher')]",
-            "offer": "[variables('Offer')]",
-            "sku": "[variables('redHatsku')]",
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('imageSKU')]",
             "version": "latest"
           },
           "osDisk": {
