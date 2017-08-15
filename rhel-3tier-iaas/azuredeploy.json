@@ -39,7 +39,7 @@
     }
   },
   "variables": {
-    "vmSize": "Standard_A1",
+    "vmSize": "Standard_A2",
     "vmStorageAccountType": "Standard_GRS",
     "vmStorageAccountName": "[concat(uniqueString(resourceGroup().id),'storage')]",
     "diagStorageAccountName": "[concat(uniqueString(resourceGroup().id),'diagstorage')]",
