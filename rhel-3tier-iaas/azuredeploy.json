@@ -16,21 +16,14 @@
       }
     },
     "webTierVmCount": {
-      "defaultValue": 2,
+      "defaultValue": 1,
       "type": "int",
       "metadata": {
         "description": "Number of Web servers to be deployed"
       }
     },
-    "appTierVmCount": {
-      "defaultValue": 2,
-      "type": "int",
-      "metadata": {
-        "description": "Number of App servers to be deployed"
-      }
-    },
     "databaseTierVmCount": {
-      "defaultValue": 2,
+      "defaultValue": 1,
       "type": "int",
       "metadata": {
         "description": "Number of Database servers to be deployed"
@@ -46,18 +39,16 @@
     }
   },
   "variables": {
-    "vmSize": "Standard_D2_v2",
+    "vmSize": "Standard_A1",
     "vmStorageAccountType": "Standard_GRS",
     "vmStorageAccountName": "[concat(uniqueString(resourceGroup().id),'storage')]",
     "diagStorageAccountName": "[concat(uniqueString(resourceGroup().id),'diagstorage')]",
     "vmStorageAccountContainerName": "vhds",
     "virtualNetworkName": "RedHat3Tier-vnet",
     "webTierSubnetName": "web-tier-subnet",
-    "appTierSubnetName": "app-tier-subnet",
     "databaseTierSubnetName": "database-tier-subnet",
     "jumpSubnetName": "jump-subnet",
     "webNSGName": "web-tier-nsg",
-    "appNSGName": "app-tier-nsg",
     "databaseNSGName": "database-tier-nsg",
     "jumpNSGName": "jump-nsg",
     "webLoadBalancerName": "web-lb",
@@ -68,22 +59,16 @@
     "weblbBackendPoolID": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools',variables('webLoadBalancerName'),'loadBalancerBackend')]",
     "weblbProbeHttpID": "[resourceId('Microsoft.Network/loadBalancers/probes',variables('webLoadBalancerName'),'weblbProbeHttp')]",
     "weblbProbeHttpsID": "[resourceId('Microsoft.Network/loadBalancers/probes',variables('webLoadBalancerName'),'weblbProbeHttps')]",
-    "internalLoadBalancerName": "internal-lb",
-    "internalFrontEndIPConfigID": "[resourceId('Microsoft.Network/loadBalancers/frontendIpConfigurations',variables('internalLoadBalancerName'),'loadBalancerFrontEnd')]",
-    "internallbBackendPoolID": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools',variables('internalLoadBalancerName'),'loadBalancerBackend')]",
-    "internallbProbeSSHID": "[resourceId('Microsoft.Network/loadBalancers/probes',variables('internalLoadBalancerName'),'internallbProbeSSH')]",
     "jumpIPAddressName": "jump-pip",
     "jumpDnsLabel": "[concat('jump',uniqueString(resourceGroup().id))]",
     "availSetName": "avail-set-",
     "webTierVmNicName": "[concat(variables('webTierVmName'), '-nic-')]",
-    "appTierVmNicName": "[concat(variables('appTierVmName'), '-nic-')]",
     "databaseTierVmNicName": "[concat(variables('databaseTierVmName'), '-nic-')]",
     "jumpVmNicName": "[concat(variables('jumpVmName'), '-nic')]",
     "imageSKU": "7.3",
     "imagePublisher": "OpenLogic",
     "imageOffer": "CentOS",
     "webTierVmName": "web-tier-vm",
-    "appTierVmName": "app-tier-vm",
     "databaseTierVmName": "database-tier-vm",
     "jumpVmName": "jump-vm",
     "redHatTags": {
@@ -182,22 +167,6 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[variables('appNSGName')]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "comments": "NSG for App Subnet. By default, intra Vnet traffic is allowed and requests from internet are denied",
-      "tags": {
-        "displayName": "App NSG",
-        "quickstartName": "[variables('quickstartTags').name]",        
-        "provider": "[variables('redHatTags').provider]"
-      },
-      "properties": {
-        "securityRules": [
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[variables('databaseNSGName')]",
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
@@ -235,6 +204,19 @@
               "destinationAddressPrefix": "10.0.0.128/25",
               "access": "Allow",
               "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "HTTP-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "10.0.0.128/25",
+              "access": "Allow",
+              "priority": 120,
               "direction": "Inbound"
             }
           }
@@ -292,7 +274,6 @@
       },
       "dependsOn": [
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('webNSGName'))]",
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('appNSGName'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('databaseNSGName'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('jumpNSGName'))]"
       ],
@@ -309,15 +290,6 @@
               "addressPrefix": "10.0.1.0/24",
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('webNSGName'))]"
-              }
-            }
-          },
-          {
-            "name": "[variables('appTierSubnetName')]",
-            "properties": {
-              "addressPrefix": "10.0.2.0/24",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('appNSGName'))]"
               }
             }
           },
@@ -355,7 +327,7 @@
       },
       "copy": {
         "name": "availSetLoop",
-        "count": 3
+        "count": 2
       },
       "properties": {
 
@@ -454,69 +426,6 @@
       }
     },
     {
-      "type": "Microsoft.Network/loadBalancers",
-      "name": "[variables('internalLoadBalancerName')]",
-      "apiVersion": "2015-06-15",
-      "location": "[resourceGroup().location]",
-      "comments": "This Internal Load Balancer is used to load balance traffic from Web VM's to Bussiness Tier VMs",
-      "tags": {
-        "displayName": "Internal Load Balancer",
-        "quickstartName": "[variables('quickstartTags').name]",        
-        "provider": "[variables('redHatTags').provider]"
-      },
-      "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
-      ],
-      "properties": {
-        "frontendIPConfigurations": [
-          {
-            "name": "loadBalancerFrontEnd",
-            "properties": {
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('webTierSubnetName'))]"
-              }
-            }
-          }
-        ],
-        "backendAddressPools": [
-          {
-            "name": "loadBalancerBackEnd"
-          }
-        ],
-        "loadBalancingRules": [
-          {
-            "name": "internallbruleSSH",
-            "properties": {
-              "frontendIPConfiguration": {
-                "id": "[variables('internalFrontEndIPConfigID')]"
-              },
-              "backendAddressPool": {
-                "id": "[variables('internallbBackendPoolID')]"
-              },
-              "probe": {
-                "id": "[variables('internallbProbeSSHID')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 22,
-              "backendPort": 22,
-              "idleTimeoutInMinutes": 15
-            }
-          }
-        ],
-        "probes": [
-          {
-            "name": "internallbProbeSSH",
-            "properties": {
-              "protocol": "Tcp",
-              "port": 22,
-              "intervalInSeconds": 15,
-              "numberOfProbes": 2
-            }
-          }
-        ]
-      }
-    },
-    {
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(variables('webTierVmNicName'), copyindex(1))]",
       "apiVersion": "2016-03-30",
@@ -547,44 +456,6 @@
               "loadBalancerBackendAddressPools": [
                 {
                   "id": "[variables('weblbBackendPoolID')]"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(variables('appTierVmNicName'), copyindex(1))]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "comments": "NICs for App Tier VMs",
-      "tags": {
-        "displayName": "App Tier VM NICs",
-        "quickstartName": "[variables('quickstartTags').name]",        
-        "provider": "[variables('redHatTags').provider]"
-      },
-      "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[concat('Microsoft.Network/loadBalancers/', variables('internalLoadBalancerName'))]"
-      ],
-      "copy": {
-        "name": "AppTierNicLoop",
-        "count": "[parameters('appTierVmCount')]"
-      },
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('appTierSubnetName'))]"
-              },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[variables('internallbBackendPoolID')]"
                 }
               ]
             }
@@ -707,69 +578,6 @@
           "networkInterfaces": [
             {
               "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('webTierVmNicName'), copyindex(1)))]"
-            }
-          ]
-        },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": "true",
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('diagStorageAccountName'))).primaryEndpoints.blob]"
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat(variables('appTierVmName'),'-', copyindex(1))]",
-      "apiVersion": "2015-06-15",
-      "location": "[resourceGroup().location]",
-      "comments": " App Tier VMs",
-      "tags": {
-        "displayName": "App Tier VMs",
-        "quickstartName": "[variables('quickstartTags').name]",        
-        "provider": "[variables('redHatTags').provider]"
-      },
-      "dependsOn": [
-        "[concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'2')]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('appTierVmNicName'), copyindex(1))]",
-        "[concat('Microsoft.Compute/availabilitySets/',variables('availSetName'),'2')]"
-      ],
-      "copy": {
-        "name": "AppTierVMLoop",
-        "count": "[parameters('appTierVmCount')]"
-      },
-      "properties": {
-        "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets',concat(variables('availSetName'),'2'))]"
-        },
-        "hardwareProfile": {
-          "vmSize": "[variables('vmSize')]"
-        },
-        "osProfile": {
-          "computerName": "[concat('appserver',copyindex(1))]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[variables('imagePublisher')]",
-            "offer": "[variables('imageOffer')]",
-            "sku": "[variables('imageSKU')]",
-            "version": "latest"
-          },
-          "osDisk": {
-            "name": "[variables('appTierVmName')]",
-            "vhd": {
-              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'2'),'2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/', variables('appTierVmName'),copyIndex(1),'-','appTierOSDisk','.vhd')]"
-            },
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('appTierVmNicName'), copyindex(1)))]"
             }
           ]
         },
