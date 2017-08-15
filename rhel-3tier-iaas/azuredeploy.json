@@ -603,7 +603,7 @@
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'3')]",
         "[concat('Microsoft.Network/networkInterfaces/', variables('databaseTierVmNicName'), copyindex(1))]",
-        "[concat('Microsoft.Compute/availabilitySets/', variables('availSetName'),'3')]"
+        "[concat('Microsoft.Compute/availabilitySets/', variables('availSetName'),'2')]"
       ],
       "copy": {
         "name": "DatabaseTierVMLoop",
@@ -611,7 +611,7 @@
       },
       "properties": {
         "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets',concat(variables('availSetName'),'3'))]"
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',concat(variables('availSetName'),'2'))]"
         },
         "hardwareProfile": {
           "vmSize": "[variables('vmSize')]"
