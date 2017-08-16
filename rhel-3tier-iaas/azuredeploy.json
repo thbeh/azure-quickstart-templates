@@ -333,11 +333,6 @@
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('webTierSubnetName'))]"
               },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[variables('weblbBackendPoolID')]"
-                }
-              ]
             }
           }
         ]
