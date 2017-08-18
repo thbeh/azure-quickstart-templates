@@ -42,7 +42,7 @@
     }
   },
   "variables": {
-    "virtualNetworkName": "RedHat3Tier-vnet",
+    "virtualNetworkName": "adVNet",
     "virtualNetworkAddressRange": "10.0.0.0/16",
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'adsa')]",
     "adLBFE": "LBFE",
@@ -166,7 +166,7 @@
       "properties": {
         "ipConfigurations": [
           {
-            "name": "ipconfig2",
+            "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[variables('adNicIPAddress')]",

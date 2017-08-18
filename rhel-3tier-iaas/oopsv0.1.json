@@ -1,0 +1,415 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Username for the Virtual Machines"
+      }
+    },
+    "adminPassword": {
+      "minLength": 12,
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machines(Min Length: 12)"
+      }
+    },
+    "webTierVmCount": {
+      "defaultValue": 1,
+      "type": "int",
+      "metadata": {
+        "description": "Number of Web servers to be deployed"
+      }
+    },
+    "databaseTierVmCount": {
+      "defaultValue": 1,
+      "type": "int",
+      "metadata": {
+        "description": "Number of Database servers to be deployed"
+      }
+    },
+    "remoteAllowedCIDR": {
+      "type": "string",
+      "minLength": 7,
+      "defaultValue": "0.0.0.0/0",
+      "metadata": {
+        "description": "Enter Public IP CIDR to allow for accessing the deployment.Enter in 0.0.0.0/0 format, you can always modify these later in NSG Settings"
+      }
+    }
+  },
+  "variables": {
+    "vmSize": "Standard_A2",
+    "vmStorageAccountType": "Standard_GRS",
+    "vmStorageAccountName": "[concat(uniqueString(resourceGroup().id),'storage')]",
+    "diagStorageAccountName": "[concat(uniqueString(resourceGroup().id),'diagstorage')]",
+    "vmStorageAccountContainerName": "vhds",
+    "virtualNetworkName": "RedHat3Tier-vnet",
+    "webTierSubnetName": "web-tier-subnet",
+    "databaseTierSubnetName": "database-tier-subnet",
+    "jumpSubnetName": "jump-subnet",
+    "webNSGName": "web-tier-nsg",
+    "databaseNSGName": "database-tier-nsg",
+    "jumpNSGName": "jump-nsg",
+    "jumpIPAddressName": "jump-pip",
+    "jumpDnsLabel": "[concat('jump',uniqueString(resourceGroup().id))]",
+    "availSetName": "avail-set-",
+    "webTierVmNicName": "[concat(variables('webTierVmName'), '-nic-')]",
+    "databaseTierVmNicName": "[concat(variables('databaseTierVmName'), '-nic-')]",
+    "jumpVmNicName": "[concat(variables('jumpVmName'), '-nic')]",
+    "imageSKU": "7.3",
+    "imagePublisher": "OpenLogic",
+    "imageOffer": "CentOS",
+    "webTierVmName": "web-tier-vm",
+    "databaseTierVmName": "database-tier-vm",
+    "jumpVmName": "jump-vm",
+    "redHatTags": {
+      "type": "object",
+      "provider": "9d2c71fc-96ba-4b4a-93b3-14def5bc96fc"
+      },
+    "quickstartTags": {
+      "type": "object",
+      "name": "rhel-3tier-iaas"
+      }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[concat(variables('vmStorageAccountName'), copyindex(1))]",
+      "apiVersion": "2016-01-01",
+      "location": "[resourceGroup().location]",
+      "comments": "4 Storage accounts used to store the VM disks for each tier",
+      "tags": {
+        "displayName": "VM Storage Accounts",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "copy": {
+        "name": "vmStorageAccountLoop",
+        "count": 4
+      },
+      "sku": {
+        "name": "[variables('vmStorageAccountType')]"
+      },
+      "kind": "Storage",
+      "properties": {
+
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('diagStorageAccountName')]",
+      "apiVersion": "2016-01-01",
+      "location": "[resourceGroup().location]",
+      "comments": "Storage account used to store the diagnostics data",
+      "tags": {
+        "displayName": "Diagnostics Storage Account",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage",
+      "properties": {
+
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('webNSGName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NSG for Web Subnet. Rules for allowing HTTP and HTTPS requests from internet are created",
+      "tags": {
+        "displayName": "Web NSG",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "HTTP-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "10.0.1.0/24",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "HTTPS-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "10.0.1.0/24",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('databaseNSGName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NSG for Database Subnet. By default, intra Vnet traffic is allowed and requests from internet are denied",
+      "tags": {
+        "displayName": "Database NSG",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "properties": {
+        "securityRules": [
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('jumpNSGName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NSG for Jump Subnet. Rules for allowing SSH from internet are created",
+      "tags": {
+        "displayName": "Jump NSG",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "SSH-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "10.0.0.128/25",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "HTTP-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "10.0.0.128/25",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('jumpIPAddressName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": " Public IP used by the Jump VM",
+      "tags": {
+        "displayName": "Jump VM Public IP",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('jumpDnsLabel')]"
+        },
+        "idleTimeoutInMinutes": 4
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('virtualNetworkName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "Virtual network for overall solution",
+      "tags": {
+        "displayName": "Virtual Network",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('webNSGName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('databaseNSGName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('jumpNSGName'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('webTierSubnetName')]",
+            "properties": {
+              "addressPrefix": "10.0.1.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('webNSGName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('databaseTierSubnetName')]",
+            "properties": {
+              "addressPrefix": "10.0.3.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNSGName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('jumpSubnetName')]",
+            "properties": {
+              "addressPrefix": "10.0.0.128/25",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpNSGName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[concat(variables('availSetName'), copyindex(1))]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "comments": "These are the Availability Sets for Web VMs, App VMs and Database VMs",
+      "tags": {
+        "displayName": "Availability Sets",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "copy": {
+        "name": "availSetLoop",
+        "count": 3
+      },
+      "properties": {
+
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('webTierVmNicName'), copyindex(1))]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NICs for Web Tier VMs",
+      "tags": {
+        "displayName": "Web Tier VM NICs",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+      ],
+      "copy": {
+        "name": "WebTierNicLoop",
+        "count": "[parameters('webTierVmCount')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('webTierSubnetName'))]"
+              },
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('databaseTierVmNicName'), copyindex(1))]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NICs for Database Tier VMs",
+      "tags": {
+        "displayName": "Database Tier VM NICs",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
+      "copy": {
+        "name": "DatabaseTierNicLoop",
+        "count": "[parameters('databaseTierVmCount')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('databaseTierSubnetName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('jumpVmNicName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NIC for Jump VM",
+      "tags": {
+        "displayName": "Jump VM NIC",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('jumpIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('jumpSubnetName'))]"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "jumpVMIP": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('jumpIPAddressName'))).ipAddress]"
+    },
+    "jumpVMFqdn": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('jumpIPAddressName'))).dnsSettings.fqdn]"
+    }
+  }
+}
