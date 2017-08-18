@@ -166,7 +166,7 @@
       "properties": {
         "ipConfigurations": [
           {
-            "name": "ipconfig1",
+            "name": "ipconfig2",
             "properties": {
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[variables('adNicIPAddress')]",
