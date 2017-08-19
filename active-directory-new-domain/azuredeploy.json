@@ -49,10 +49,10 @@
     "adLBBE": "LBBE",
     "adRDPNAT": "adRDP",
     "adNicName": "adNic",
-    "adNicIPAddress": "10.0.0.4",
+    "adNicIPAddress": "10.1.0.4",
     "adVMName": "adVM",
     "adSubnetName": "adSubnet",
-    "adSubnetAddressPrefix": "10.0.0.0/24",
+    "adSubnetAddressPrefix": "10.1.0.0/24",
     "publicIPAddressName": "adPublicIP",
     "adAvailabilitySetName": "adAvailabiltySet",
     "adLBName": "adLoadBalancer"
