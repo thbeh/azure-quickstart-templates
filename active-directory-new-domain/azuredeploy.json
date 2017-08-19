@@ -43,7 +43,7 @@
   },
   "variables": {
     "virtualNetworkName": "adVNet",
-    "virtualNetworkAddressRange": "10.1.0.0/16",
+    "virtualNetworkAddressRange": "10.1.0/16",
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'adsa')]",
     "adLBFE": "LBFE",
     "adLBBE": "LBBE",
