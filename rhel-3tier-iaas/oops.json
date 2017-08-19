@@ -49,6 +49,8 @@
     "databaseTierSubnetName": "database-tier-subnet",
     "jumpSubnetName": "jump-subnet",
     "webNSGName": "web-tier-nsg",
+    "webIPAddressName": "web-pip",
+    "webDnsLabel": "[concat('web',uniqueString(resourceGroup().id))]",
     "databaseNSGName": "database-tier-nsg",
     "jumpNSGName": "jump-nsg",
     "jumpIPAddressName": "jump-pip",
@@ -249,6 +251,25 @@
       }
     },
     {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('webIPAddressName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": " Public IP used by the Web VM",
+      "tags": {
+        "displayName": "Web VM Public IP",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('webDnsLabel')]"
+        },
+        "idleTimeoutInMinutes": 4
+      }
+    },    
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
       "apiVersion": "2016-03-30",
@@ -344,6 +365,9 @@
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('webIPAddressName'))]"
+              },              
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('webTierSubnetName'))]"
               },
