@@ -517,13 +517,13 @@
     }    
   ],
   "outputs": {
-    "jumpVMIP": {
+    "webVMIP": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('jumpIPAddressName'))).ipAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('webIPAddressName'))).ipAddress]"
     },
-    "jumpVMFqdn": {
+    "webVMFqdn": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('jumpIPAddressName'))).dnsSettings.fqdn]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('webIPAddressName'))).dnsSettings.fqdn]"
     }
   }
 }
