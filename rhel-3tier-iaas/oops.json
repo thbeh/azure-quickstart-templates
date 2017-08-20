@@ -595,7 +595,6 @@
         "osProfile": {
           "computerName": "jumpvm",
           "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]",
           "customData": "[variables('cloudConfig')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "true",
