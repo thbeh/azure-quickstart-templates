@@ -63,7 +63,7 @@
     "jumpDnsLabel": "[concat('jump',uniqueString(resourceGroup().id))]",
     "availSetName": "avail-set-",
     "webTierVmNicName": "[concat(variables('webTierVmName'), '-nic-')]",
-    "ansibleVmNicName": "[concat(variables('webTierVmName'), '-nic-ansible')]",
+    "ansibleVmNicName": "[concat(variables('ansibleVmName'), '-nic')]",
     "databaseTierVmNicName": "[concat(variables('databaseTierVmName'), '-nic-')]",
     "jumpVmNicName": "[concat(variables('jumpVmName'), '-nic')]",
     "imageSKU": "7.3",
@@ -72,6 +72,7 @@
     "webTierVmName": "web-tier-vm",
     "databaseTierVmName": "database-tier-vm",
     "jumpVmName": "jump-vm",
+    "ansibleVmName": "ansible-vm",
     "redHatTags": {
       "type": "object",
       "provider": "9d2c71fc-96ba-4b4a-93b3-14def5bc96fc"
@@ -673,12 +674,12 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat(variables('webTierVmName'),'-', 'ansible')]",
+      "name": "[variables('ansibleVmName')]",
       "apiVersion": "2015-06-15",
       "location": "[resourceGroup().location]",
-      "comments": " Web Tier VMs",
+      "comments": "Ansible VM",
       "tags": {
-        "displayName": "Web Tier VMs",
+        "displayName": "Ansible VM",
         "quickstartName": "[variables('quickstartTags').name]",        
         "provider": "[variables('redHatTags').provider]"
       },
@@ -695,7 +696,7 @@
           "vmSize": "[variables('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[concat(variables('webTierVmName'),'-', 'ansible')]",
+          "computerName": "[variables('ansibleVmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
@@ -707,9 +708,9 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "[variables('webTierVmName')]",
+            "name": "[variables('ansibleVmName')]",
             "vhd": {
-              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'1'),'2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/', variables('webTierVmName'),copyIndex(1),'-','webTierOSDisk','.vhd')]"
+              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'1'),'2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/', variables('ansibleVmName'),'-','webTierOSDisk','.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -732,11 +733,11 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('webTierVmName-ansible'),'/newuserscript')]",
+      "name": "[concat(variables('ansibleVmName'),'/newuserscript')]",
       "apiVersion": "2015-06-15",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('webTierVmName'),'-', 'ansible'))]"
+        "[concat('Microsoft.Compute/virtualMachines/', variables('ansibleVmName'))]"
       ],
       "properties": {
         "publisher": "Microsoft.Azure.Extensions",
