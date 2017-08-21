@@ -595,7 +595,6 @@
         "osProfile": {
           "computerName": "jumpvm",
           "adminUsername": "[parameters('adminUsername')]",
-          "customData": "[variables('cloudConfig')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "true",
             "ssh": {
@@ -606,14 +605,13 @@
                 }
               ]
             }
-          }
-
+          }          
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "CoreOS",
-            "offer": "CoreOS",
-            "sku": "Stable",
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('imageSKU')]",
             "version": "latest"
           },
           "osDisk": {
@@ -639,7 +637,7 @@
           }
         }
       }
-    }        
+    }    
   ],
   "outputs": {
     "webVMIP": {
