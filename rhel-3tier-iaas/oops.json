@@ -713,7 +713,7 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/rhel-3tier-iaas/install_ansible.sh"
+            "https://raw.githubusercontent.com/thbeh/azure-quickstart-templates/master/rhel-3tier-iaas/install_ansible.sh"
           ]
         },
         "protectedSettings": {
