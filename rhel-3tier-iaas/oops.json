@@ -732,7 +732,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('webTierVmName'),'-', 'ansible'),'/newuserscript')]",
+      "name": "[concat(variables('webTierVmName-ansible'),'/newuserscript')]",
       "apiVersion": "[variables('apiVersion')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
