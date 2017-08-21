@@ -387,6 +387,38 @@
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('ansibleVmNicName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NIC for ansible",
+      "tags": {
+        "displayName": "Ansible VM NIC",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+      ],
+      "copy": {
+        "name": "WebTierNicLoop",
+        "count": "[parameters('webTierVmCount')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('webTierSubnetName'))]"
+              },
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(variables('databaseTierVmNicName'), copyindex(1))]",
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
