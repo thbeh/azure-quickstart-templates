@@ -685,7 +685,7 @@
       },
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'1')]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('ansibleVmNicName')]",
+        "[concat('Microsoft.Network/networkInterfaces/', variables('ansibleVmNicName'))]",
         "[concat('Microsoft.Compute/availabilitySets/', variables('availSetName'),'1')]"
       ],
       "properties": {
