@@ -730,28 +730,7 @@
           }
         }
       }
-    },
-    {
-      "type": "extensions",
-      "name": "install-ansible",
-      "apiVersion": "2015-06-15",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('ansibleVmName'))]"
-      ],
-      "properties": {
-        "publisher": "Microsoft.Azure.Extensions",
-        "type": "CustomScript",
-        "typeHandlerVersion": "2.0",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "fileUris": [
-            "https://raw.githubusercontent.com/thbeh/azure-quickstart-templates/master/rhel-3tier-iaas/install_ansible.sh"
-          ],
-          "commandToExecute": "['sh install_ansible.sh ']"
-        }
-      }
-    }        
+    }
   ],
   "outputs": {
     "webVMIP": {
