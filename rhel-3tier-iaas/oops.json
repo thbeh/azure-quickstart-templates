@@ -747,10 +747,9 @@
         "settings": {
           "fileUris": [
             "https://raw.githubusercontent.com/thbeh/azure-quickstart-templates/master/rhel-3tier-iaas/install_ansible.sh"
-          ]
-        },
-        "protectedSettings": {
-          "commandToExecute": "[concat('sh install_ansible.sh ', parameters('hello'))]"
+          ],
+          "commandToExecute": "[concat('sh install_ansible.sh ', parameters('hello'))]",
+          "protectedSettings": { }
         }
       }
     }        
