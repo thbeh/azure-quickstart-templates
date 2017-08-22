@@ -732,9 +732,9 @@
       }
     },
     {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('ansibleVmName'),'/newuserscript')]",
-      "apiVersion": "2015-05-01-preview",
+      "type": "extensions",
+      "name": "install-ansible",
+      "apiVersion": "2015-06-15",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', variables('ansibleVmName'))]"
@@ -748,8 +748,7 @@
           "fileUris": [
             "https://raw.githubusercontent.com/thbeh/azure-quickstart-templates/master/rhel-3tier-iaas/install_ansible.sh"
           ],
-          "commandToExecute": "[concat('sh install_ansible.sh ', parameters('hello'))]",
-          "protectedSettings": { }
+          "commandToExecute": "[concat('sh install_ansible.sh ', parameters('hello'))]"
         }
       }
     }        
