@@ -734,7 +734,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(variables('ansibleVmName'),'/newuserscript')]",
-      "apiVersion": "2015-06-15",
+      "apiVersion": "2015-05-01-preview",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', variables('ansibleVmName'))]"
