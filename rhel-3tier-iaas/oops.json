@@ -226,11 +226,11 @@
             }
           },
           {
-            "name": "HTTP-allow",
+            "name": "HTTPS-allow",
             "properties": {
               "protocol": "Tcp",
               "sourcePortRange": "*",
-              "destinationPortRange": "80",
+              "destinationPortRange": "443",
               "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
               "destinationAddressPrefix": "10.0.0.128/25",
               "access": "Allow",
