@@ -66,7 +66,7 @@
     "ansibleVmNicName": "[concat(variables('ansibleVmName'), '-nic')]",
     "databaseTierVmNicName": "[concat(variables('databaseTierVmName'), '-nic-')]",
     "jumpVmNicName": "[concat(variables('jumpVmName'), '-nic')]",
-    "imageSKU": "7.3",
+    "imageSKU": "7.2n",
     "imagePublisher": "OpenLogic",
     "imageOffer": "CentOS",
     "webTierVmName": "web-tier-vm",
