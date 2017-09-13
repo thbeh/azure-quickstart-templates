@@ -59,8 +59,12 @@
       "name": "[variables('storageAccountName')]",
       "apiVersion": "[variables('apiVersion')]",
       "location": "[resourceGroup().location]",
-      "properties": {
-        "accountType": "[variables('storageAccountType')]"
+      "sku": {
+        "name": "[variables('storageAccountType')]"
+      },
+      "kind": "storage",
+      "properties" : { 
+
       }
     },
     {
