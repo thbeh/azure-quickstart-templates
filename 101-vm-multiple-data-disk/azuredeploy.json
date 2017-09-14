@@ -51,7 +51,7 @@
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "nicName": "myNIC",
     "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet1Name'))]",
-    "apiVersion": "2016-01-01"
+    "apiVersion": "2015-06-15"
   },
   "resources": [
     {
