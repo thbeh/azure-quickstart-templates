@@ -45,13 +45,13 @@
     "imageVersion": "latest",
     "publicIPAddressName": "myPublicIP",
     "publicIPAddressType": "Dynamic",
-    "storageAccountType": "Standard_LRS",
+    "storageAccountType": "Standard_GRS",
     "virtualNetworkName": "myVNET",
     "vmName": "myVM",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "nicName": "myNIC",
     "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet1Name'))]",
-    "apiVersion": "2015-06-15"
+    "apiVersion": "2016-01-01"
   },
   "resources": [
     {
@@ -64,7 +64,6 @@
       },
       "kind": "storage",
       "properties" : { 
-
       }
     },
     {
