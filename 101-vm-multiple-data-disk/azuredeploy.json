@@ -45,7 +45,7 @@
     "imageVersion": "latest",
     "publicIPAddressName": "myPublicIP",
     "publicIPAddressType": "Dynamic",
-    "storageAccountType": "Standard_GRS",
+    "storageAccountType": "Premium_GRS",
     "virtualNetworkName": "myVNET",
     "vmName": "myVM",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
@@ -59,11 +59,8 @@
       "name": "[variables('storageAccountName')]",
       "apiVersion": "[variables('apiVersion')]",
       "location": "[resourceGroup().location]",
-      "sku": {
-        "name": "[variables('storageAccountType')]"
-      },
-      "kind": "storage",
-      "properties" : { 
+      "properties": {
+        "accountType": "[variables('storageAccountType')]"
       }
     },
     {
