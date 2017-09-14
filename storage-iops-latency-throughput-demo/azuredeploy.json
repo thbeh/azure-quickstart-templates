@@ -51,12 +51,13 @@
     "vNetSubnet1Prefix": "10.0.0.0/24",
     "storageAccountType": [ "Premium_LRS", "Standard_LRS" ],
     "storageAccountNamePrefix": [ "premium", "standard" ],
-    "vmImagePublisher": "MicrosoftWindowsServer",
-    "vm1ImageOffer": "WindowsServer",
+    "vmImagePublisher": "OpenLogic",
+    "vm1ImageOffer": "CentOS",
+    "vm1ImageSKU": "7.2n",
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
     "vmSize": "Standard_DS3_v2",
     "vmName": "demo-01",
-    "vmWindowsOSVersion": "2016-Datacenter",
+    "vmWindowsOSVersion": "7.2n",
     "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vNetName')), '/subnets/', variables('vNetSubnet1Name'))]",
     "vmContainerName": "vhds",
     "vmNicName": "[concat(variables('vmName'),'-nic-','0')]",
@@ -162,7 +163,7 @@
           "imageReference": {
             "publisher": "[variables('vmImagePublisher')]",
             "offer": "[variables('vm1ImageOffer')]",
-            "sku": "[variables('vmWindowsOSVersion')]",
+            "sku": "[variables('vm1ImageSKU')]",
             "version": "latest"
           },
           "osDisk": {
