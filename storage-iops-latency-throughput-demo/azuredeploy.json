@@ -35,7 +35,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/storage-iops-latency-throughput-demo/"
+      "defaultValue": "https://raw.githubusercontent.com/thbeh/azure-quickstart-templates/master/storage-iops-latency-throughput-demo/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -55,7 +55,7 @@
     "vm1ImageOffer": "CentOS",
     "vm1ImageSKU": "7.2n",
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
-    "vmSize": "Standard_DS3_v2",
+    "vmSize": "Standard_D14_v2",
     "vmName": "demo-01",
     "vmWindowsOSVersion": "7.2n",
     "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vNetName')), '/subnets/', variables('vNetSubnet1Name'))]",
@@ -176,43 +176,63 @@
           },
           "dataDisks": [
             {
-              "name": "[concat(variables('vmName'),'-standarddata-','1')]",
-              "lun": 0,
-              "diskSizeGB": "100",
-              "caching": "None",
-              "createOption": "Empty",
-              "vhd": {
-                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[1],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', variables('vmName'),'-standarddata-','1', '.vhd')]"
-              }
-            },
-            {
-              "name": "[concat(variables('vmName'),'-standarddata-','2')]",
-              "lun": 1,
-              "diskSizeGB": "100",
-              "caching": "ReadOnly",
-              "createOption": "Empty",
-              "vhd": {
-                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[1],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', variables('vmName'),'-standarddata-','2', '.vhd')]"
-              }
-            },
-            {
-              "name": "[concat(variables('vmName'),'-standarddata-','3')]",
-              "lun": 2,
-              "diskSizeGB": "100",
-              "caching": "ReadWrite",
-              "createOption": "Empty",
-              "vhd": {
-                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[1],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', variables('vmName'),'-standarddata-','3', '.vhd')]"
-              }
-            },
-            {
               "name": "[concat(variables('vmName'),'-premiumdata-','1')]",
-              "lun": 3,
-              "diskSizeGB": "1023",
+              "lun": 0,
+              "diskSizeGB": "600",
               "caching": "None",
               "createOption": "Empty",
               "vhd": {
                 "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', variables('vmName'),'-premiumdata-','1', '.vhd')]"
+              }
+            },
+            {
+              "name": "[concat(variables('vmName'),'-premiumdata-','2')]",
+              "lun": 1,
+              "diskSizeGB": "600",
+              "caching": "ReadOnly",
+              "createOption": "Empty",
+              "vhd": {
+                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', variables('vmName'),'-premiumdata-','2', '.vhd')]"
+              }
+            },
+            {
+              "name": "[concat(variables('vmName'),'-premiumdata-','3')]",
+              "lun": 2,
+              "diskSizeGB": "600",
+              "caching": "ReadWrite",
+              "createOption": "Empty",
+              "vhd": {
+                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', variables('vmName'),'-premiumdata-','3', '.vhd')]"
+              }
+            },
+            {
+              "name": "[concat(variables('vmName'),'-premiumdata-','4')]",
+              "lun": 3,
+              "diskSizeGB": "600",
+              "caching": "None",
+              "createOption": "Empty",
+              "vhd": {
+                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', variables('vmName'),'-premiumdata-','4', '.vhd')]"
+              }
+            },
+            {
+              "name": "[concat(variables('vmName'),'-premiumdata-','5')]",
+              "lun": 4,
+              "diskSizeGB": "600",
+              "caching": "None",
+              "createOption": "Empty",
+              "vhd": {
+                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', variables('vmName'),'-premiumdata-','5', '.vhd')]"
+              }
+            },
+            {
+              "name": "[concat(variables('vmName'),'-premiumdata-','6')]",
+              "lun": 5,
+              "diskSizeGB": "600",
+              "caching": "None",
+              "createOption": "Empty",
+              "vhd": {
+                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', variables('vmName'),'-premiumdata-','6', '.vhd')]"
               }
             }
           ]
