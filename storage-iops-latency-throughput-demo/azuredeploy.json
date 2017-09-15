@@ -66,7 +66,7 @@
     "vmWindowsOSVersion": "7.2n",
     "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vNetName')), '/subnets/', variables('vNetSubnet1Name'))]",
     "vmContainerName": "vhds",
-    "vmNicName": "[concat(variables('vmName'),'-nic-','0')]",
+    "vmNicName": "[concat(variables('vmName'),'-nic-')]",
     "vmPIPName": "[concat(variables('vmName'),'-PIP')]",
     "dscResourceFolder": "dsc",
     "dscResourceConfig": "vmDemo"
@@ -115,7 +115,7 @@
       }
     },
     {
-      "name": "[variables('vmNicName')]",
+      "name": "[concat(variables('vmNicName'), copyindex(1))]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
@@ -125,6 +125,10 @@
       ],
       "tags": {
         "displayName": "[variables('vmNicName')]"
+      },
+      "copy" : {
+      	"name": "MapRNicLoop",
+      	"count": "[parameters('vmCount')]"
       },
       "properties": {
         "ipConfigurations": [
@@ -150,7 +154,7 @@
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "storageAccountCopy",
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmNicName'), copyIndex(1))]"
       ],
       "copy": {
       	"name": "VMCountLoop",
@@ -249,7 +253,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmNicName'), copyIndex(1)))]"
             }
           ]
         }
