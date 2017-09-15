@@ -138,9 +138,6 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('vmSubnetRef')]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPIPName'))]"
               }
             }
           }
@@ -168,7 +165,7 @@
           "vmSize": "[variables('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[concat(variables('vmName'),copyIndex(1))]",
+          "computerName": "[variables('vmName')]",
           "adminUsername": "[parameters('vmAdminUserName')]",
           "adminPassword": "[parameters('vmAdminPassword')]"
         },
@@ -257,8 +254,8 @@
             }
           ]
         }
-      },
-    },
+      }
+    }
   ],
   "outputs": {
     "vmURI": {
