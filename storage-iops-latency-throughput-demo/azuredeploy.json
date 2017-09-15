@@ -89,7 +89,7 @@
     "vmNicName": "[concat(variables('vmName'),'-nic-')]",
     "dscResourceFolder": "dsc",
     "dscResourceConfig": "vmDemo",
-    "sshKeyPath": "[concat('/home/', parameters('adminUsername'),'/.ssh/authorized_keys')]"
+    "sshKeyPath": "[concat('/home/', parameters('vmAdminUserName'),'/.ssh/authorized_keys')]"
   },
   "resources": [
     {
