@@ -30,6 +30,12 @@
         "description": "The DNS prefix assigned to the public IP address resource."
       }
     },
+    "vmCount" : {
+    	"type": "int",
+    	"metadata": {
+    		"description": "Number of VMs"
+    	}
+    },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
@@ -147,6 +153,10 @@
         "storageAccountCopy",
         "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
       ],
+      "copy": {
+      	"name": "VMCountLoop",
+      	"count": "[parameters('vmCount')]"
+      },
       "tags": {
         "displayName": "[variables('vmName')]"
       },
