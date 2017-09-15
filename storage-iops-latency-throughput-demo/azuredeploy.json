@@ -60,7 +60,6 @@
     "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vNetName')), '/subnets/', variables('vNetSubnet1Name'))]",
     "vmContainerName": "vhds",
     "vmNicName": "[concat(variables('vmName'),'-nic-')]",
-    "vmPIPName": "[concat(variables('vmName'),'-PIP')]",
     "dscResourceFolder": "dsc",
     "dscResourceConfig": "vmDemo"
   },
