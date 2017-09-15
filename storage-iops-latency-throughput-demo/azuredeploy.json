@@ -62,7 +62,7 @@
     "vm1ImageSKU": "7.2n",
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
     "vmSize": "Standard_DS14_v2",
-    "vmName": "demo-01",
+    "vmName": "mapr",
     "vmWindowsOSVersion": "7.2n",
     "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vNetName')), '/subnets/', variables('vNetSubnet1Name'))]",
     "vmContainerName": "vhds",
@@ -70,7 +70,6 @@
     "vmPIPName": "[concat(variables('vmName'),'-PIP')]",
     "dscResourceFolder": "dsc",
     "dscResourceConfig": "vmDemo"
-
   },
   "resources": [
     {
@@ -145,7 +144,7 @@
       }
     },
     {
-      "name": "[variables('vmName')]",
+      "name": "[concat(variables('vmName'),'-',copyIndex(1))]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
