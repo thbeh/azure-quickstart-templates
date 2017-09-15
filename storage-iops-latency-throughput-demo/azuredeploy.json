@@ -23,13 +23,6 @@
         "description": "The name of the virtual network resource."
       }
     },
-    "vmPIPDnsName": {
-      "type": "string",
-      "minLength": 1,
-      "metadata": {
-        "description": "The DNS prefix assigned to the public IP address resource."
-      }
-    },
     "vmCount" : {
     	"type": "int",
     	"metadata": {
