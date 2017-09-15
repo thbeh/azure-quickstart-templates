@@ -259,23 +259,6 @@
         }
       },
     },
-    {
-      "properties": {
-      "name": "[variables('vmPIPName')]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
-      "dependsOn": [],
-      "tags": {
-        "displayName": "[variables('vmPIPName')]"
-      },
-        "publicIPAllocationMethod": "Dynamic",
-        "dnsSettings": {
-          "domainNameLabel": "[parameters('vmPIPDnsName')]"
-        }
-      }
-    }
-
   ],
   "outputs": {
     "vmURI": {
