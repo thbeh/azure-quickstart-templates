@@ -9,12 +9,6 @@
         "description": "The administrative user on the Windows VM."
       }
     },
-    "vmAdminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The administrative user password."
-      }
-    },
     "vNetName": {
       "type": "string",
       "defaultValue": "demo-vnet",
@@ -54,6 +48,12 @@
         "description": "Location of existing VNET"
       }
     },
+    "sshKeyData": {
+      "type": "string",
+      "metadata": {
+        "description": "Public key for SSH authentication"
+      }
+    },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
@@ -88,7 +88,8 @@
     "vmContainerName": "vhds",
     "vmNicName": "[concat(variables('vmName'),'-nic-')]",
     "dscResourceFolder": "dsc",
-    "dscResourceConfig": "vmDemo"
+    "dscResourceConfig": "vmDemo",
+    "sshKeyPath": "[concat('/home/', parameters('adminUsername'),'/.ssh/authorized_keys')]"
   },
   "resources": [
     {
@@ -157,7 +158,17 @@
         "osProfile": {
           "computerName": "[concat(variables('vmName'),'-',copyindex(1))]",
           "adminUsername": "[parameters('vmAdminUserName')]",
-          "adminPassword": "[parameters('vmAdminPassword')]"
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[variables('sshKeyPath')]",
+                  "keyData": "[parameters('sshKeyData')]"
+                }
+              ]
+            }
+          }
         },
         "storageProfile": {
           "imageReference": {
