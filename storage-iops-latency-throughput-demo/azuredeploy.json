@@ -168,7 +168,7 @@
           "vmSize": "[variables('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[variables('vmName')]",
+          "computerName": "[concat(variables('vmName'),copyIndex(1))]",
           "adminUsername": "[parameters('vmAdminUserName')]",
           "adminPassword": "[parameters('vmAdminPassword')]"
         },
@@ -260,6 +260,7 @@
       },
     },
     {
+      "properties": {
       "name": "[variables('vmPIPName')]",
       "type": "Microsoft.Network/publicIPAddresses",
       "location": "[resourceGroup().location]",
@@ -268,7 +269,6 @@
       "tags": {
         "displayName": "[variables('vmPIPName')]"
       },
-      "properties": {
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
           "domainNameLabel": "[parameters('vmPIPDnsName')]"
