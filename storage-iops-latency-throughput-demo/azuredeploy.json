@@ -154,7 +154,7 @@
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "storageAccountCopy",
-        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmNicName'), copyIndex(1))]"
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmNicName'), copyIndex(1)))]"
       ],
       "copy": {
       	"name": "VMCountLoop",
