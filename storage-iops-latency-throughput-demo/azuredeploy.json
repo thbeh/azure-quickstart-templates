@@ -113,8 +113,7 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vNetName'))]",
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPIPName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vNetName'))]"
       ],
       "tags": {
         "displayName": "[variables('vmNicName')]"
