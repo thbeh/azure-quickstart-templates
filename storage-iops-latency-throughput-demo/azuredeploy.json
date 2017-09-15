@@ -258,38 +258,6 @@
           ]
         }
       },
-      "resources": [
-        {
-          "name": "DSC",
-          "type": "extensions",
-          "location": "[resourceGroup().location]",
-          "apiVersion": "2016-03-30",
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
-          ],
-          "tags": {
-            "displayName": "[concat(variables('vmName'),'/','DSC')]"
-          },
-          "properties": {
-            "publisher": "Microsoft.Powershell",
-            "type": "DSC",
-            "typeHandlerVersion": "2.9",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "configuration": {
-                "url": "[concat(parameters('_artifactsLocation'),'/',variables('dscResourceFolder'),'/',variables('dscResourceConfig'),'.zip')]",
-                "script": "[concat(variables('dscResourceConfig'),'.ps1')]",
-                "function": "[variables('dscResourceConfig')]"
-              },
-              "configurationArguments": {
-                "nodeName": "[variables('vmName')]"
-              }
-            },
-            "protectedSettings": {
-            }
-          }
-        }
-      ]
     },
     {
       "name": "[variables('vmPIPName')]",
