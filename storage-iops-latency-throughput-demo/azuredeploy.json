@@ -113,9 +113,6 @@
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[parameters('existingVNETLocation')]",
       "apiVersion": "2016-03-30",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]"
-      ],
       "tags": {
         "displayName": "[variables('vmNicName')]"
       },
