@@ -191,7 +191,7 @@
               "name": "[concat(variables('vmName'),'-premiumdata-','1')]",
               "lun": 0,
               "diskSizeGB": "600",
-              "caching": "None",
+              "caching": "ReadWrite",
               "createOption": "Empty",
               "vhd": {
                 "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', concat(variables('vmName'),'-premiumdata-',copyIndex(1)), '1', '.vhd')]"
@@ -201,7 +201,7 @@
               "name": "[concat(variables('vmName'),'-premiumdata-','2')]",
               "lun": 1,
               "diskSizeGB": "600",
-              "caching": "ReadOnly",
+              "caching": "ReadWrite",
               "createOption": "Empty",
               "vhd": {
                 "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', concat(variables('vmName'),'-premiumdata-',copyIndex(1)), '2', '.vhd')]"
@@ -221,7 +221,7 @@
               "name": "[concat(variables('vmName'),'-premiumdata-','4')]",
               "lun": 3,
               "diskSizeGB": "600",
-              "caching": "None",
+              "caching": "ReadWrite",
               "createOption": "Empty",
               "vhd": {
                 "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', concat(variables('vmName'),'-premiumdata-',copyIndex(1)), '4', '.vhd')]"
@@ -231,7 +231,7 @@
               "name": "[concat(variables('vmName'),'-premiumdata-','5')]",
               "lun": 4,
               "diskSizeGB": "600",
-              "caching": "None",
+              "caching": "ReadWrite",
               "createOption": "Empty",
               "vhd": {
                 "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', concat(variables('vmName'),'-premiumdata-',copyIndex(1)), '5', '.vhd')]"
@@ -241,7 +241,7 @@
               "name": "[concat(variables('vmName'),'-premiumdata-','6')]",
               "lun": 5,
               "diskSizeGB": "600",
-              "caching": "None",
+              "caching": "ReadWrite",
               "createOption": "Empty",
               "vhd": {
                 "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', concat(variables('vmName'),'-premiumdata-',copyIndex(1)), '6', '.vhd')]"
