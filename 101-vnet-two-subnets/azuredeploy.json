@@ -29,7 +29,8 @@
       "metadata": {
         "description": "Subnet 1 Name"
       }
-    },
+    }
+  },
   "variables": {
     "apiVersion": "2015-06-15"
   },
