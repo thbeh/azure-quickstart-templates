@@ -51,7 +51,7 @@
             "properties": {
               "addressPrefix": "[parameters('subnet1Prefix')]"
             }
-          },
+          }
         ]
       }
     }
