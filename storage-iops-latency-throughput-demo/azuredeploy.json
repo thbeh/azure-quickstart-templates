@@ -61,7 +61,7 @@
     "vm1ImageOffer": "CentOS",
     "vm1ImageSKU": "7.2n",
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
-    "vmSize": "Standard_DS14_v2",
+    "vmSize": "Standard_D32S_V3",
     "vmName": "mapr",
     "vmWindowsOSVersion": "7.2n",
     "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vNetName')), '/subnets/', variables('vNetSubnet1Name'))]",
@@ -138,9 +138,6 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('vmSubnetRef')]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPIPName'))]"
               }
             }
           }
@@ -168,7 +165,7 @@
           "vmSize": "[variables('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[concat(variables('vmName'),copyIndex(1))]",
+          "computerName": "[concat(variables('vmName'),copyIndex(1) )]",
           "adminUsername": "[parameters('vmAdminUserName')]",
           "adminPassword": "[parameters('vmAdminPassword')]"
         },
