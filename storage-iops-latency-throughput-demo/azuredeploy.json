@@ -140,11 +140,7 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-<<<<<<< HEAD
-                "id": "[variables('vmSubnetRef')]"
-=======
-                "id": "[variables('subnetRef')]"
->>>>>>> 926832756ce09a940335e070343a1ed894483b69
+                "id": "[variables('vmSubnetRef')]",
               }
             }
           }
@@ -172,11 +168,7 @@
           "vmSize": "[variables('vmSize')]"
         },
         "osProfile": {
-<<<<<<< HEAD
-          "computerName": "[concat(variables('vmName'),copyIndex(1) )]",
-=======
           "computerName": "[concat(variables('vmName'),'-',copyindex(1))]",
->>>>>>> 926832756ce09a940335e070343a1ed894483b69
           "adminUsername": "[parameters('vmAdminUserName')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "true",
