@@ -144,6 +144,8 @@
     "databaseTierVmName": "database-tier-vm",
     "jumpVmName": "jump-vm",
     "ansibleVmName": "ansible-vm",
+    "jumpInstanceType": "Standard_D2s_v3",
+    "diskType": "Premium_LRS",
 
     "maprNetworkTemplate": "MapR.Network.Template",    
     "maprOpenVPNTemplate": "MapR.OpenVPN.Template",
@@ -709,7 +711,7 @@
       ],
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[variables('vmSize')]"
+          "vmSize": "[variables('jumpInstanceType')]"
         },
         "osProfile": {
           "computerName": "jumpvm",
@@ -728,18 +730,18 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('imagePublisher')]",
-            "offer": "[variables('imageOffer')]",
-            "sku": "[variables('imageSKU')]",
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "16.04-LTS",
             "version": "latest"
           },
           "osDisk": {
+            "createOption": "FromImage",
             "name": "[variables('jumpVmName')]",
-            "vhd": {
-              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'4'),'2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/', variables('jumpVmName'),'-','jumpVmOSDisk','.vhd')]"
-            },
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
+            "osType": "Linux",
+            "managedDisk": {
+              "storageAccountType": "[variables('diskType')]"
+            }
           }
         },
         "networkProfile": {
@@ -749,13 +751,36 @@
             }
           ]
         },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": "true",
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('diagStorageAccountName'))).primaryEndpoints.blob]"
+      },
+      "resources": [{
+        "apiVersion": "[variables('computeApiVersion')]",
+        "name": "openvpn-configure",
+        "type": "extensions",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[concat('Microsoft.Compute/virtualMachines/', variables('jumpVmName'))]"
+        ],
+        "tags": {
+          "provider": "[toUpper(parameters('providerID'))]",
+          "displayName": "openvpn-configure"
+        },
+        "properties": {
+          "publisher": "Microsoft.Azure.Extensions",
+          "type": "CustomScript",
+          "typeHandlerVersion": "2.0",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "fileUris": [
+              "[concat(parameters('artifactsBaseUrl'), '/install_openvpn_access_server.sh')]",
+              "[concat(parameters('artifactsBaseUrl'), '/mapr-vpn-configure.sh')]",
+              "[concat(parameters('artifactsBaseUrl'), '/mapr-vpn.sh')]"
+            ]
+          },
+          "protectedSettings": {
+            "commandToExecute": "[concat('bash mapr-vpn.sh ', parameters('openVpnUser'), ' ', parameters('openVpnPassword'), ' ', parameters('fourDotSubnetPublic'), ' ', reference(variables('openvpnpublicIPAddressName')).dnsSettings.fqdn, ' ', parameters('addressPrefix'))]"
           }
         }
-      }
+      }]      
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
@@ -816,75 +841,6 @@
         }
       }
     },
-    {
-      "name": "[variables('maprOpenVPNTemplate')]",
-      "type": "Microsoft.Resources/deployments",
-      "condition": "[equals(parameters('installOpenVPN'), 'true')]",
-      "apiVersion": "[variables('deploymentsVersion')]",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('artifactsBaseUrl'), '/openvpn.json')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "providerID": {
-            "value": "CD79582D-BEB4-4325-9DD6-34E684A304DB"
-          },
-          "clusterName": {
-            "value": "jump"
-          },
-          "adminAuthType": {
-            "value": "password"
-          },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
-          },
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
-          },
-          "adminPublicKey": {
-            "value": "[parameters('sshKeyData')]"
-          },
-          "diskType": {
-            "value": "Premium_LRS"
-          },
-          "fourDotSubnetPublic": {
-            "value": "[variables('fourDotSubnetPublic')]"
-          },
-          "ipAddress": {
-            "value": "[parameters('vnetPublicSubnetStartAddress')]"
-          },
-          "subnetRefPublic": {
-            "value": "[variables('subnetRefPublic')]"
-          },
-          "openvpnInstanceType": {
-            "value": "Standard_D2s_v3"
-          },
-          "openVpnUser": {
-            "value": "[parameters('openVpnUser')]"
-          },
-          "openVpnPassword": {
-            "value": "[parameters('openVpnPassword')]"
-          },
-          "addressPrefix": {
-            "value": "[variables('addressPrefix')]"
-          },
-          "publicAccessCIDR": {
-            "value": "[parameters('publicAccessCIDR')]"
-          },
-          "maprsgName": {
-            "value": "[variables('jumpNSGName')]"
-          },
-          "location": {
-            "value": "[resourceGroup().location]"
-          },
-          "artifactsBaseUrl": {
-            "value": "[parameters('artifactsBaseUrl')]"
-          }
-        }
-      }
-    }
 
   ],
   "outputs": {
