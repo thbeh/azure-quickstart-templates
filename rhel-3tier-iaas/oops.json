@@ -751,33 +751,7 @@
             }
           ]
         }
-      },
-      "resources": [{
-        "apiVersion": "[variables('computeApiVersion')]",
-        "name": "openvpn-configure",
-        "type": "extensions",
-        "location": "[resourceGroup().location]",
-        "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', variables('jumpVmName'))]"
-        ],
-        "tags": {
-          "provider": "[toUpper(parameters('providerID'))]",
-          "displayName": "openvpn-configure"
-        },
-        "properties": {
-          "publisher": "Microsoft.Azure.Extensions",
-          "type": "CustomScript",
-          "typeHandlerVersion": "2.0",
-          "autoUpgradeMinorVersion": true,
-          "settings": {
-            "fileUris": [
-              "[concat(parameters('artifactsBaseUrl'), '/install_openvpn_access_server.sh')]",
-              "[concat(parameters('artifactsBaseUrl'), '/mapr-vpn-configure.sh')]",
-              "[concat(parameters('artifactsBaseUrl'), '/mapr-vpn.sh')]"
-            ]
-          },
-        }
-      }]      
+      }      
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
