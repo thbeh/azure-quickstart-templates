@@ -144,6 +144,8 @@
     "databaseTierVmName": "database-tier-vm",
     "jumpVmName": "jump-vm",
     "ansibleVmName": "ansible-vm",
+    
+    "maprNetworkTemplate": "MapR.Network.Template",    
     "maprOpenVPNTemplate": "MapR.OpenVPN.Template",
     "deploymentsVersion": "2016-09-01",
     "virtualNetworkId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
