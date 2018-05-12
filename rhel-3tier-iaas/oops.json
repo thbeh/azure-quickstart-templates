@@ -154,7 +154,7 @@
     "subnetRefPublic": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePublic'))]",
 
 
-    "subnetNamePrivate": "[parameters('webTierSubnetName')]",
+    "subnetNamePrivate": "[variables('webTierSubnetName')]",
     "subnetRefPrivate": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePrivate'))]",
 
 
