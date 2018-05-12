@@ -150,6 +150,7 @@
     "maprNetworkTemplate": "MapR.Network.Template",    
     "maprOpenVPNTemplate": "MapR.OpenVPN.Template",
     "deploymentsVersion": "2016-09-01",
+    "computeApiVersion": "2017-03-30",
     "virtualNetworkId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "addressPrefix": "[parameters('vnetAddressPrefix')]",
     "fourDotSubnetPublic": "[concat(take(parameters('vnetPublicSubnetStartAddress'), add(lastIndexOf(parameters('vnetPublicSubnetStartAddress'), '.'), 1)), '0')]",
@@ -697,7 +698,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[variables('jumpVmName')]",
-      "apiVersion": "2015-06-15",
+      "apiVersion": "[variables('computeApiVersion')]",
       "location": "[resourceGroup().location]",
       "comments": "Jump VM",
       "tags": {
@@ -750,7 +751,7 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('jumpVmNicName'))]"
             }
           ]
-        },
+        }
       },
       "resources": [{
         "apiVersion": "[variables('computeApiVersion')]",
@@ -840,8 +841,7 @@
           }
         }
       }
-    },
-
+    }
   ],
   "outputs": {
     "webVMIP": {
