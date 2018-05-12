@@ -776,9 +776,6 @@
               "[concat(parameters('artifactsBaseUrl'), '/mapr-vpn.sh')]"
             ]
           },
-          "protectedSettings": {
-            "commandToExecute": "[concat('bash mapr-vpn.sh ', parameters('openVpnUser'), ' ', parameters('openVpnPassword'), ' ', parameters('fourDotSubnetPublic'), ' ', reference(variables('openvpnpublicIPAddressName')).dnsSettings.fqdn, ' ', parameters('addressPrefix'))]"
-          }
         }
       }]      
     },
