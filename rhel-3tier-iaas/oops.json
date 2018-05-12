@@ -2,6 +2,20 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "artifactsBaseUrl": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/thbeh/azure-quickstart-templates/master/rhel-3tier-iaas",
+      "metadata": {
+        "artifactsBaseUrl": "Base URL of the Publisher Template gallery package"
+      }
+    },
+    "installOpenVPN": {
+      "type": "string",
+      "defaultValue": "true",
+      "metadata": {
+        "description": "Enable access to private cluster"
+      }
+    },    
     "adminUsername": {
       "type": "string",
       "metadata": {
@@ -20,7 +34,21 @@
       "metadata": {
         "description": "Public key for SSH authentication"
       }
-    },    
+    },  
+    "openVpnUser": {
+      "type": "string",
+      "defaultValue": "openvpn",
+      "metadata": {
+        "description": "OpenVPN login user"
+      }
+    },
+    "openVpnPassword": {
+      "type": "securestring",
+      "defaultValue": "openvpn",
+      "metadata": {
+        "description": "OpenVPN user password (Please use a strong password to protect your cluster)"
+      }
+    },  
     "webTierVmCount": {
       "defaultValue": 1,
       "type": "int",
@@ -42,8 +70,43 @@
       "metadata": {
         "description": "Enter Public IP CIDR to allow for accessing the deployment.Enter in 0.0.0.0/0 format, you can always modify these later in NSG Settings"
       }
+    },
+    "vnetPublicSubnetStartAddress": {
+      "type": "string",
+      "defaultValue": "172.24.0.4",
+      "metadata": {
+        "description": "Virtual network public subnet start address"
+      }
+    },
+    "vnetPublicSubnetName": {
+      "type": "string",
+      "defaultValue": "web-public-subnet",
+      "metadata": {
+        "description": "Virtual network public subnet name"
+      }
+    },    
+    "vnetResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Virtual network resource group"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "172.24.0.0/16",
+      "metadata": {
+        "description": "Virtual network address prefix"
+      }
+    },
+    "publicAccessCIDR": {
+      "type": "string",
+      "defaultValue": "*",
+      "metadata": {
+        "description": "Public internet access CIDR. Use * for all internet traffic"
+      }
     }
   },
+
   "variables": {
     "vmSize": "Standard_A2",
     "vmStorageAccountType": "Standard_GRS",
@@ -66,13 +129,27 @@
     "ansibleVmNicName": "[concat(variables('ansibleVmName'), '-nic')]",
     "databaseTierVmNicName": "[concat(variables('databaseTierVmName'), '-nic-')]",
     "jumpVmNicName": "[concat(variables('jumpVmName'), '-nic')]",
-    "imageSKU": "7.2n",
+    "imageSKU": "7.4",
     "imagePublisher": "OpenLogic",
     "imageOffer": "CentOS",
     "webTierVmName": "web-tier-vm",
     "databaseTierVmName": "database-tier-vm",
     "jumpVmName": "jump-vm",
     "ansibleVmName": "ansible-vm",
+    "maprOpenVPNTemplate": "MapR.OpenVPN.Template",
+    "deploymentsVersion": "2016-09-01",
+    "virtualNetworkId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+    "addressPrefix": "[parameters('vnetAddressPrefix')]",
+    "fourDotSubnetPublic": "[concat(take(parameters('vnetPublicSubnetStartAddress'), add(lastIndexOf(parameters('vnetPublicSubnetStartAddress'), '.'), 1)), '0')]",
+    "subnetPrefixPublic": "[parameters('vnetPublicSubnetAddressPrefix')]",
+    "subnetNamePublic": "[parameters('vnetPublicSubnetName')]",
+    "subnetRefPublic": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePublic'))]",
+
+
+    "subnetNamePrivate": "[parameters('webTierSubnetName')]",
+    "subnetRefPrivate": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePrivate'))]",
+
+
     "redHatTags": {
       "type": "object",
       "provider": "9d2c71fc-96ba-4b4a-93b3-14def5bc96fc"
@@ -730,7 +807,78 @@
           }
         }
       }
+    },
+    {
+      "name": "[variables('maprOpenVPNTemplate')]",
+      "type": "Microsoft.Resources/deployments",
+      "condition": "[equals(parameters('installOpenVPN'), 'true')]",
+      "apiVersion": "[variables('deploymentsVersion')]",
+      "dependsOn": ["[concat('Microsoft.Resources/deployments/', variables('maprNetworkTemplate'))]"],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('artifactsBaseUrl'), '/openvpn.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "providerID": {
+            "value": "CD79582D-BEB4-4325-9DD6-34E684A304DB"
+          },
+          "clusterName": {
+            "value": "maprlab"
+          },
+          "adminAuthType": {
+            "value": "password"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "adminPublicKey": {
+            "value": "[parameters('sshKeyData')]"
+          },
+          "diskType": {
+            "value": "Premium_LRS"
+          },
+          "fourDotSubnetPublic": {
+            "value": "[variables('fourDotSubnetPublic')]"
+          },
+          "ipAddress": {
+            "value": "[parameters('vnetPublicSubnetStartAddress')]"
+          },
+          "subnetRefPublic": {
+            "value": "[variables('subnetRefPublic')]"
+          },
+          "openvpnInstanceType": {
+            "value": "Standard_D2s_v3"
+          },
+          "openVpnUser": {
+            "value": "[parameters('openVpnUser')]"
+          },
+          "openVpnPassword": {
+            "value": "[parameters('openVpnPassword')]"
+          },
+          "addressPrefix": {
+            "value": "[variables('addressPrefix')]"
+          },
+          "publicAccessCIDR": {
+            "value": "[parameters('publicAccessCIDR')]"
+          },
+          "maprsgName": {
+            "value": "[variables('webNSGName')]"
+          },
+          "location": {
+            "value": "[resourceGroup().location]"
+          },
+          "artifactsBaseUrl": {
+            "value": "[parameters('artifactsBaseUrl')]"
+          }
+        }
+      }
     }
+
   ],
   "outputs": {
     "webVMIP": {
