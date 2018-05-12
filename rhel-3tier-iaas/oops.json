@@ -73,7 +73,7 @@
     },
     "vnetPublicSubnetStartAddress": {
       "type": "string",
-      "defaultValue": "10.0.0.128",
+      "defaultValue": "10.0.0.129",
       "metadata": {
         "description": "Virtual network public subnet start address"
       }
