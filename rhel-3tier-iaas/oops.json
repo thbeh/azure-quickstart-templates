@@ -153,9 +153,7 @@
     "subnetNamePublic": "[parameters('vnetPublicSubnetName')]",
     "subnetRefPublic": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePublic'))]",
 
-
-    "subnetNamePrivate": "[variables('webTierSubnetName')]",
-    "subnetRefPrivate": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePrivate'))]",
+    "subnetRefPrivate": "[concat(variables('virtualNetworkId'), '/subnets/', variables('webTierSubnetName'))]",
 
 
     "redHatTags": {
