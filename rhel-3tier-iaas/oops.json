@@ -819,7 +819,6 @@
       "type": "Microsoft.Resources/deployments",
       "condition": "[equals(parameters('installOpenVPN'), 'true')]",
       "apiVersion": "[variables('deploymentsVersion')]",
-      "dependsOn": ["[concat('Microsoft.Resources/deployments/', variables('maprNetworkTemplate'))]"],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
