@@ -73,7 +73,7 @@
     },
     "vnetPublicSubnetStartAddress": {
       "type": "string",
-      "defaultValue": "172.24.0.4",
+      "defaultValue": "10.0.0.4",
       "metadata": {
         "description": "Virtual network public subnet start address"
       }
@@ -93,7 +93,7 @@
     },
     "vnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "172.24.0.0/16",
+      "defaultValue": "10.0.0.0/16",
       "metadata": {
         "description": "Virtual network address prefix"
       }
@@ -107,7 +107,7 @@
     },
     "vnetPublicSubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "172.24.0.0/28",
+      "defaultValue": "10.0.0.0/28",
       "metadata": {
         "description": "Virtual network public subnet address prefix"
       }
