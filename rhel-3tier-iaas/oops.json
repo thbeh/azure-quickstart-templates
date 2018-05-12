@@ -80,7 +80,7 @@
     },
     "vnetPublicSubnetName": {
       "type": "string",
-      "defaultValue": "web-tier-subnet",
+      "defaultValue": "jump-subnet",
       "metadata": {
         "description": "Virtual network public subnet name"
       }
