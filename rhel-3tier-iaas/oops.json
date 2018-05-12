@@ -104,7 +104,15 @@
       "metadata": {
         "description": "Public internet access CIDR. Use * for all internet traffic"
       }
+    },
+    "vnetPublicSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "172.24.0.0/28",
+      "metadata": {
+        "description": "Virtual network public subnet address prefix"
+      }
     }
+
   },
 
   "variables": {
