@@ -144,7 +144,7 @@
     "databaseTierVmName": "database-tier-vm",
     "jumpVmName": "jump-vm",
     "ansibleVmName": "ansible-vm",
-    
+
     "maprNetworkTemplate": "MapR.Network.Template",    
     "maprOpenVPNTemplate": "MapR.OpenVPN.Template",
     "deploymentsVersion": "2016-09-01",
@@ -832,7 +832,7 @@
             "value": "CD79582D-BEB4-4325-9DD6-34E684A304DB"
           },
           "clusterName": {
-            "value": "maprlab"
+            "value": "jump"
           },
           "adminAuthType": {
             "value": "password"
@@ -874,7 +874,7 @@
             "value": "[parameters('publicAccessCIDR')]"
           },
           "maprsgName": {
-            "value": "[variables('webNSGName')]"
+            "value": "[variables('jumpNSGName')]"
           },
           "location": {
             "value": "[resourceGroup().location]"
