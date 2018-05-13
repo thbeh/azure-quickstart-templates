@@ -418,9 +418,9 @@
             }
           },
           {
-            "name": "[variables('vnetPublicSubnetName')]",
+            "name": "[parameters('vnetPublicSubnetName')]",
             "properties": {
-              "addressPrefix": "[variables('vnetPublicSubnetAddressPrefix')]",
+              "addressPrefix": "[parameters('vnetPublicSubnetAddressPrefix')]",
             }
           }
         ]
