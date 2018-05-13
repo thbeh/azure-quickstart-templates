@@ -44,7 +44,6 @@
     },
     "openVpnPassword": {
       "type": "securestring",
-      "defaultValue": "openvpn",
       "metadata": {
         "description": "OpenVPN user password (Please use a strong password to protect your cluster)"
       }
@@ -838,7 +837,7 @@
             "value": "jump"
           },
           "adminAuthType": {
-            "value": "password"
+            "value": "sshPublicKey"
           },
           "adminUsername": {
             "value": "[parameters('adminUsername')]"
