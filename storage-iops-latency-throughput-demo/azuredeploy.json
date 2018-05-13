@@ -11,7 +11,7 @@
     },
     "vNetName": {
       "type": "string",
-      "defaultValue": "demo-vnet",
+      "defaultValue": "poc-vnet",
       "minLength": 1,
       "metadata": {
         "description": "The name of the virtual network resource."
@@ -91,7 +91,7 @@
     "storageAccountNamePrefix": [ "premium", "standard" ],
     "vmImagePublisher": "OpenLogic",
     "vm1ImageOffer": "CentOS",
-    "vm1ImageSKU": "7.2n",
+    "vm1ImageSKU": "7.4",
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
     "vmSize": "Standard_D32S_V3",
     "vmName": "mapr",
