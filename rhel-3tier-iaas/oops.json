@@ -73,14 +73,14 @@
     },
     "vnetPublicSubnetStartAddress": {
       "type": "string",
-      "defaultValue": "10.0.0.129",
+      "defaultValue": "10.0.4.4",
       "metadata": {
         "description": "Virtual network public subnet start address"
       }
     },
     "vnetPublicSubnetName": {
       "type": "string",
-      "defaultValue": "jump-subnet",
+      "defaultValue": "jump-public-subnet",
       "metadata": {
         "description": "Virtual network public subnet name"
       }
@@ -107,12 +107,11 @@
     },
     "vnetPublicSubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/28",
+      "defaultValue": "10.0.4.0/29",
       "metadata": {
         "description": "Virtual network public subnet address prefix"
       }
     }
-
   },
 
   "variables": {
@@ -416,6 +415,12 @@
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpNSGName'))]"
               }
+            }
+          },
+          {
+            "name": "[variables('vnetPublicSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('vnetPublicSubnetAddressPrefix')]",
             }
           }
         ]
