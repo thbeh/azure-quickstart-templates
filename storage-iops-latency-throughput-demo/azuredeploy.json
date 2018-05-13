@@ -96,7 +96,7 @@
     "vmSize": "Standard_D32S_V3",
     "vmName": "mapr",
     "vmWindowsOSVersion": "7.2n",
-    "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vNetName')), '/subnets/', variables('vNetSubnet1Name'))]",
+    "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName')), '/subnets/', parameters('existingSubnetName'))]",
     "vmContainerName": "vhds",
     "vmNicName": "[concat(variables('vmName'),'-nic-')]",
     "dscResourceFolder": "dsc",
