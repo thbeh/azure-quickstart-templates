@@ -834,7 +834,7 @@
             "value": "CD79582D-BEB4-4325-9DD6-34E684A304DB"
           },
           "clusterName": {
-            "value": "jump"
+            "value": "mapr"
           },
           "adminAuthType": {
             "value": "sshPublicKey"
