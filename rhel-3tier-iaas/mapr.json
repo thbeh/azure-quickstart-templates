@@ -1,0 +1,792 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "artifactsBaseUrl": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/thbeh/azure-quickstart-templates/master/rhel-3tier-iaas",
+      "metadata": {
+        "artifactsBaseUrl": "Base URL of the Publisher Template gallery package"
+      }
+    },
+    "installOpenVPN": {
+      "type": "string",
+      "defaultValue": "true",
+      "metadata": {
+        "description": "Enable access to private cluster"
+      }
+    },    
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Username for the Virtual Machines"
+      }
+    },
+    "adminPassword": {
+      "minLength": 12,
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machines(Min Length: 12)"
+      }
+    },
+    "sshKeyData": {
+      "type": "string",
+      "metadata": {
+        "description": "Public key for SSH authentication"
+      }
+    },  
+    "openVpnUser": {
+      "type": "string",
+      "defaultValue": "openvpn",
+      "metadata": {
+        "description": "OpenVPN login user"
+      }
+    },
+    "openVpnPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "OpenVPN user password (Please use a strong password to protect your cluster)"
+      }
+    },  
+    "webTierVmCount": {
+      "defaultValue": 1,
+      "type": "int",
+      "metadata": {
+        "description": "Number of Web servers to be deployed"
+      }
+    },
+    "databaseTierVmCount": {
+      "defaultValue": 1,
+      "type": "int",
+      "metadata": {
+        "description": "Number of Database servers to be deployed"
+      }
+    },
+    "remoteAllowedCIDR": {
+      "type": "string",
+      "minLength": 7,
+      "defaultValue": "0.0.0.0/0",
+      "metadata": {
+        "description": "Enter Public IP CIDR to allow for accessing the deployment.Enter in 0.0.0.0/0 format, you can always modify these later in NSG Settings"
+      }
+    },
+    "vnetPublicSubnetStartAddress": {
+      "type": "string",
+      "defaultValue": "10.0.4.4",
+      "metadata": {
+        "description": "Virtual network public subnet start address"
+      }
+    },
+    "vnetPublicSubnetName": {
+      "type": "string",
+      "defaultValue": "mapr-openvpn-subnet",
+      "metadata": {
+        "description": "Virtual network public subnet name"
+      }
+    },    
+    "vnetResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Virtual network resource group"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "Virtual network address prefix"
+      }
+    },
+    "publicAccessCIDR": {
+      "type": "string",
+      "defaultValue": "*",
+      "metadata": {
+        "description": "Public internet access CIDR. Use * for all internet traffic"
+      }
+    },
+    "vnetPublicSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.4.0/29",
+      "metadata": {
+        "description": "Virtual network public subnet address prefix"
+      }
+    }
+  },
+
+  "variables": {
+    "vmSize": "Standard_A2",
+    "vmStorageAccountType": "Standard_GRS",
+    "vmStorageAccountName": "[concat(uniqueString(resourceGroup().id),'storage')]",
+    "diagStorageAccountName": "[concat(uniqueString(resourceGroup().id),'diagstorage')]",
+    "vmStorageAccountContainerName": "vhds",
+    "virtualNetworkName": "poc-vnet",
+    "webTierSubnetName": "common-svc-subnet",
+    "databaseTierSubnetName": "mapr-subnet",
+    "jumpSubnetName": "gateway-subnet",
+    "webNSGName": "common-svc-nsg",
+    "webIPAddressName": "common-svc-pip",
+    "webDnsLabel": "[concat('web',uniqueString(resourceGroup().id))]",
+    "databaseNSGName": "mapr-nsg",
+    "jumpNSGName": "mapr-openvpn-nsg",
+    "jumpIPAddressName": "gateway-pip",
+    "jumpDnsLabel": "[concat('jump',uniqueString(resourceGroup().id))]",
+    "availSetName": "avail-set-",
+    "webTierVmNicName": "[concat(variables('webTierVmName'), '-nic-')]",
+    "ansibleVmNicName": "[concat(variables('ansibleVmName'), '-nic')]",
+    "databaseTierVmNicName": "[concat(variables('databaseTierVmName'), '-nic-')]",
+    "jumpVmNicName": "[concat(variables('jumpVmName'), '-nic')]",
+    "imageSKU": "7.4",
+    "imagePublisher": "OpenLogic",
+    "imageOffer": "CentOS",
+    "webTierVmName": "common-svc-vm",
+    "databaseTierVmName": "mapr-vm",
+    "jumpVmName": "gateway-vm",
+    "ansibleVmName": "ansible-vm",
+
+    "jumpInstanceType": "Standard_D2s_v3",
+    "diskType": "Premium_LRS",
+    "maprNetworkTemplate": "MapR.Network.Template",    
+    "maprOpenVPNTemplate": "MapR.OpenVPN.Template",
+    "maprJumpBoxTemplate": "Mapr.JumpBox.Template",
+    "deploymentsVersion": "2016-09-01",
+    "computeApiVersion": "2017-03-30",
+    "virtualNetworkId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+    "addressPrefix": "[parameters('vnetAddressPrefix')]",
+    "fourDotSubnetPublic": "[concat(take(parameters('vnetPublicSubnetStartAddress'), add(lastIndexOf(parameters('vnetPublicSubnetStartAddress'), '.'), 1)), '0')]",
+    "subnetPrefixPublic": "[parameters('vnetPublicSubnetAddressPrefix')]",
+    "subnetNamePublic": "[parameters('vnetPublicSubnetName')]",
+    "subnetRefPublic": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePublic'))]",
+
+    "subnetRefPrivate": "[concat(variables('virtualNetworkId'), '/subnets/', variables('webTierSubnetName'))]",
+
+
+    "redHatTags": {
+      "type": "object",
+      "provider": "9d2c71fc-96ba-4b4a-93b3-14def5bc96fc"
+      },
+    "quickstartTags": {
+      "type": "object",
+      "name": "rhel-3tier-iaas"
+      },
+    "sshKeyPath": "[concat('/home/', parameters('adminUsername'),'/.ssh/authorized_keys')]",
+    "cloudConfig": "I2Nsb3VkLWNvbmZpZw0KY29yZW9zOg0KICB1cGRhdGU6DQogICAgcmVib290LXN0cmF0ZWd5OiBiZXN0LWVmZm9ydA0KICB1bml0czoNCiAgICAtIG5hbWU6IGRvY2tlci5zZXJ2aWNlDQogICAgICBjb21tYW5kOiBzdGFydA0KICAgIC0gbmFtZTogZG9ja2VyLWd1YWNhbW9sZS5zZXJ2aWNlDQogICAgICBjb21tYW5kOiBzdGFydA0KICAgICAgY29udGVudDogfA0KICAgICAgICBbVW5pdF0NCiAgICAgICAgRGVzY3JpcHRpb249R3VhY2Ftb2xlIHJ1bm5pbmcgb24gRG9ja2VyDQogICAgICAgIA0KICAgICAgICBSZXF1aXJlcz1kb2NrZXIuc2VydmljZSBkb2NrZXItZ3VhY2Quc2VydmljZSBkb2NrZXItbWFyaWFkYi5zZXJ2aWNlIGRvY2tlci1tYXJpYWRiLXdhaXRlci5zZXJ2aWNlDQogICAgICAgIFdhbnRzPW5ldHdvcmstb25saW5lLnRhcmdldA0KICAgICAgICBBZnRlcj1kb2NrZXIuc2VydmljZSBuZXR3b3JrLW9ubGluZS50YXJnZXQgZG9ja2VyLWd1YWNkLnNlcnZpY2UgZG9ja2VyLW1hcmlhZGIuc2VydmljZSBkb2NrZXItbWFyaWFkYi13YWl0ZXIuc2VydmljZQ0KICAgICAgICANCiAgICAgICAgW1NlcnZpY2VdDQogICAgICAgIFJlc3RhcnQ9YWx3YXlzDQogICAgICAgIFJlc3RhcnRTZWM9Mw0KICAgICAgICBUaW1lb3V0U3RhcnRTZWM9MA0KICAgICAgICANCiAgICAgICAgRXhlY1N0YXJ0UHJlPS0vdXNyL2Jpbi9kb2NrZXIgcm0gLWYgc29tZS1ndWFjYW1vbGUNCiAgICAgICAgRXhlY1N0YXJ0UHJlPS0vdXNyL2Jpbi9kb2NrZXIgcHVsbCBnbHlwdG9kb24vZ3VhY2Ftb2xlOmxhdGVzdA0KICAgICAgICANCiAgICAgICAgRXhlY1N0YXJ0PS91c3IvYmluL2RvY2tlciBydW4gXA0KICAgICAgICAgIC0tbmFtZSBzb21lLWd1YWNhbW9sZSBcDQogICAgICAgICAgLS1saW5rIHNvbWUtZ3VhY2Q6Z3VhY2QgXA0KICAgICAgICAgIC0tbGluayBzb21lLW1hcmlhZGI6bXlzcWwgXA0KICAgICAgICAgIC1lIE1ZU1FMX0RBVEFCQVNFPWd1YWNhbW9sZV9kYiAgXA0KICAgICAgICAgIC1lIE1ZU1FMX1VTRVI9Z3VhY2Ftb2xlX3VzZXIgICAgXA0KICAgICAgICAgIC1lIE1ZU1FMX1BBU1NXT1JEPWJ1cnJpdG8tZ3VhY2Ftb2xlLWV4dHJhLTFkb2xsYXIgXA0KICAgICAgICAgIC1wIDgwOjgwODAgXA0KICAgICAgICAgIGdseXB0b2Rvbi9ndWFjYW1vbGU6bGF0ZXN0DQogICAgICAgIA0KICAgICAgICBFeGVjU3RvcD0vYmluL2Jhc2ggLWMgIiBcDQogICAgICAgICAgL3Vzci9iaW4vZG9ja2VyIHN0b3Agc29tZS1ndWFjYW1vbGUgfHwgdHJ1ZSBcDQogICAgICAgICAgL3Vzci9iaW4vZG9ja2VyIHJtIHNvbWUtZ3VhY2Ftb2xlIHx8IHRydWUgXA0KICAgICAgICAiDQogICAgICAgIA0KICAgICAgICBbSW5zdGFsbF0NCiAgICAgICAgV2FudGVkQnk9bXVsdGktdXNlci50YXJnZXQNCiAgICAtIG5hbWU6IGRvY2tlci1ndWFjZC5zZXJ2aWNlDQogICAgICBjb21tYW5kOiBzdGFydA0KICAgICAgY29udGVudDogfA0KICAgICAgICBbVW5pdF0NCiAgICAgICAgRGVzY3JpcHRpb249Z3VhY2QgcnVubmluZyBvbiBEb2NrZXINCiAgICAgICAgDQogICAgICAgIFJlcXVpcmVzPWRvY2tlci5zZXJ2aWNlDQogICAgICAgIFdhbnRzPW5ldHdvcmstb25saW5lLnRhcmdldA0KICAgICAgICBBZnRlcj1kb2NrZXIuc2VydmljZSBuZXR3b3JrLW9ubGluZS50YXJnZXQNCiAgICAgICAgDQogICAgICAgIFtTZXJ2aWNlXQ0KICAgICAgICBSZXN0YXJ0PWFsd2F5cw0KICAgICAgICBSZXN0YXJ0U2VjPTMNCiAgICAgICAgVGltZW91dFN0YXJ0U2VjPTANCiAgICAgICAgDQogICAgICAgIEV4ZWNTdGFydFByZT0tL3Vzci9iaW4vZG9ja2VyIHJtIC1mIHNvbWUtZ3VhY2QNCiAgICAgICAgRXhlY1N0YXJ0UHJlPS0vdXNyL2Jpbi9kb2NrZXIgcHVsbCBnbHlwdG9kb24vZ3VhY2Q6bGF0ZXN0DQogICAgICAgIA0KICAgICAgICBFeGVjU3RhcnQ9L3Vzci9iaW4vZG9ja2VyIHJ1biBcDQogICAgICAgICAgLS1uYW1lIHNvbWUtZ3VhY2QgXA0KICAgICAgICAgIGdseXB0b2Rvbi9ndWFjZDpsYXRlc3QNCiAgICAgICAgDQogICAgICAgIEV4ZWNTdG9wPS9iaW4vYmFzaCAtYyAiIFwNCiAgICAgICAgICAvdXNyL2Jpbi9kb2NrZXIgc3RvcCBzb21lLWd1YWNkIHx8IHRydWUgXA0KICAgICAgICAgIC91c3IvYmluL2RvY2tlciBybSBzb21lLWd1YWNkIHx8IHRydWUgXA0KICAgICAgICAiDQogICAgICAgIA0KICAgICAgICBbSW5zdGFsbF0NCiAgICAgICAgV2FudGVkQnk9bXVsdGktdXNlci50YXJnZXQNCiAgICAtIG5hbWU6IGRvY2tlci1tYXJpYWRiLnNlcnZpY2UNCiAgICAgIGNvbW1hbmQ6IHN0YXJ0DQogICAgICBjb250ZW50OiB8DQogICAgICAgIFtVbml0XQ0KICAgICAgICBEZXNjcmlwdGlvbj1NYXJpYURCIHJ1bm5pbmcgb24gRG9ja2VyDQogICAgICAgIA0KICAgICAgICBSZXF1aXJlcz1kb2NrZXIuc2VydmljZQ0KICAgICAgICBXYW50cz1uZXR3b3JrLW9ubGluZS50YXJnZXQNCiAgICAgICAgQWZ0ZXI9ZG9ja2VyLnNlcnZpY2UgbmV0d29yay1vbmxpbmUudGFyZ2V0DQogICAgICAgIA0KICAgICAgICBbU2VydmljZV0NCiAgICAgICAgUmVzdGFydD1hbHdheXMNCiAgICAgICAgUmVzdGFydFNlYz0zDQogICAgICAgIFRpbWVvdXRTdGFydFNlYz0wDQogICAgICAgIA0KICAgICAgICBFeGVjU3RhcnRQcmU9L3Vzci9iaW4vY2htb2QgK3ggL29wdC9iaW4vZG9ja2VyLW1hcmlhZGIuc2gNCiAgICAgICAgRXhlY1N0YXJ0PS9vcHQvYmluL2RvY2tlci1tYXJpYWRiLnNoDQogICAgICAgIA0KICAgICAgICBFeGVjU3RvcD0vYmluL2Jhc2ggLWMgIiBcDQogICAgICAgICAgL3Vzci9iaW4vZG9ja2VyIHN0b3Agc29tZS1tYXJpYWRiIHx8IHRydWUgXA0KICAgICAgICAgIC91c3IvYmluL2RvY2tlciBybSBzb21lLW1hcmlhZGIgfHwgdHJ1ZSBcDQogICAgICAgICINCiAgICAgICAgDQogICAgICAgIFtJbnN0YWxsXQ0KICAgICAgICBXYW50ZWRCeT1tdWx0aS11c2VyLnRhcmdldA0KICAgIC0gbmFtZTogZG9ja2VyLW1hcmlhZGItd2FpdGVyLnNlcnZpY2UNCiAgICAgIGNvbW1hbmQ6IHN0YXJ0DQogICAgICBjb250ZW50OiB8DQogICAgICAgIFtVbml0XQ0KICAgICAgICBEZXNjcmlwdGlvbj1XYWl0IGZvciBNYXJpYURCIHRvIGJlIGluaXRpYWxpemVkDQogICAgICAgIA0KICAgICAgICBSZXF1aXJlcz1kb2NrZXIuc2VydmljZSBkb2NrZXItbWFyaWFkYi5zZXJ2aWNlDQogICAgICAgIFdhbnRzPW5ldHdvcmstb25saW5lLnRhcmdldA0KICAgICAgICBBZnRlcj1kb2NrZXIuc2VydmljZSBkb2NrZXItbWFyaWFkYi5zZXJ2aWNlIG5ldHdvcmstb25saW5lLnRhcmdldA0KICAgICAgICANCiAgICAgICAgW1NlcnZpY2VdDQogICAgICAgIFR5cGU9c2ltcGxlDQogICAgICAgIFJlbWFpbkFmdGVyRXhpdD10cnVlDQogICAgICAgIEV4ZWNTdGFydFByZT0vdXNyL2Jpbi9jaG1vZCAreCAvb3B0L2Jpbi9kb2NrZXItbWFyaWFkYi13YWl0ZXIuc2gNCiAgICAgICAgRXhlY1N0YXJ0PS91c3IvYmluL2Jhc2ggL29wdC9iaW4vZG9ja2VyLW1hcmlhZGItd2FpdGVyLnNoDQogICAgICAgIA0KICAgICAgICBbSW5zdGFsbF0NCiAgICAgICAgV2FudGVkQnk9bXVsdGktdXNlci50YXJnZXQNCndyaXRlX2ZpbGVzOg0KICAtIHBhdGg6IC9vcHQvYmluL2RvY2tlci1tYXJpYWRiLnNoDQogICAgb3duZXI6IHJvb3QNCiAgICBwZXJtaXNzaW9uczogJzA3NTUnDQogICAgY29udGVudDogfA0KICAgICAgICAjIS9iaW4vc2gNCiAgICAgICAgDQogICAgICAgICMgUGFyYW1ldGVycw0KICAgICAgICBJTUFHRV9OQU1FPSJtYXJpYWRiOjEwLjEiDQogICAgICAgIENPTlRBSU5FUl9OQU1FPSJzb21lLW1hcmlhZGIiDQogICAgICAgIEdVQUNBTU9MRV9JTUFHRV9OQU1FPSJnbHlwdG9kb24vZ3VhY2Ftb2xlOmxhdGVzdCINCiAgICAgICAgTVlTUUxfUk9PVF9QQVNTV09SRD0ibXktc2VjcmV0LXB3Ig0KICAgICAgICBNWVNRTF9VU0VSPSJndWFjYW1vbGVfdXNlciINCiAgICAgICAgTVlTUUxfREFUQUJBU0U9Imd1YWNhbW9sZV9kYiINCiAgICAgICAgTVlTUUxfUEFTU1dPUkQ9ImJ1cnJpdG8tZ3VhY2Ftb2xlLWV4dHJhLTFkb2xsYXIiDQogICAgICAgIA0KICAgICAgICAjIFJlbW92ZSBwcmUtZXhpc3RpbmcgY29udGFpbmVycw0KICAgICAgICBkb2NrZXIgc3RvcCAkQ09OVEFJTkVSX05BTUUgfHwgdHJ1ZQ0KICAgICAgICBkb2NrZXIgcm0gJENPTlRBSU5FUl9OQU1FIHx8IHRydWUNCiAgICAgICAgDQogICAgICAgICMgUHVsbCB0aGUgbGF0ZXN0IHZlcnNpb24gb2YgdGhlIERvY2tlciBpbWFnZQ0KICAgICAgICBkb2NrZXIgcHVsbCAkSU1BR0VfTkFNRQ0KICAgICAgICANCiAgICAgICAgIyBDaGVjayBpZiB0aGUgTXlTUUwgZGF0YWJhc2UgaGFzIGJlZW4gcHJlcGFyZWQgYWxyZWFkeQ0KICAgICAgICBpZiBbICEgLWUgL21udC9kYXRhL215c3FsL215c3FsIF07IHRoZW4NCiAgICAgICAgICAgICMgSW5pdGlhbCBkYXRhYmFzZSBjb250ZW50czogZ2VuZXJhdGUgdGhlbSBmcm9tIHRoZSBndWFjYW1vbGUgaW1hZ2UNCiAgICAgICAgICAgIFRNUF9TUUxfRklMRT0vbW50L3Jlc291cmNlL2luaXRkYi5zcWwNCiAgICAgICAgICAgIHJtIC1yZiAkVE1QX1NRTF9GSUxFICRUTVBfU1FMX0ZJTEUudG1wDQogICAgICAgICAgICBkb2NrZXIgcnVuIC0tcm0gJEdVQUNBTU9MRV9JTUFHRV9OQU1FIC9vcHQvZ3VhY2Ftb2xlL2Jpbi9pbml0ZGIuc2ggLS1teXNxbCA+ICRUTVBfU1FMX0ZJTEUNCiAgICAgICAgICAgIA0KICAgICAgICAgICAgIyBQcmVwZW5kIGRhdGFiYXNlIG5hbWUgdG8gU1FMIHF1ZXJ5DQogICAgICAgICAgICBlY2hvICJVU0UgJE1ZU1FMX0RBVEFCQVNFOyAiIHwgY2F0IC0gJFRNUF9TUUxfRklMRSA+ICRUTVBfU1FMX0ZJTEUudG1wIFwNCiAgICAgICAgICAgICAgICAmJiBtdiAkVE1QX1NRTF9GSUxFLnRtcCAkVE1QX1NRTF9GSUxFDQogICAgICAgICAgICANCiAgICAgICAgICAgIGRvY2tlciBydW4gXA0KICAgICAgICAgICAgICAgIC0tbmFtZSAkQ09OVEFJTkVSX05BTUUgXA0KICAgICAgICAgICAgICAgIC1lIE1ZU1FMX1JPT1RfUEFTU1dPUkQ9JE1ZU1FMX1JPT1RfUEFTU1dPUkQgXA0KICAgICAgICAgICAgICAgIC1lIE1ZU1FMX0RBVEFCQVNFPSRNWVNRTF9EQVRBQkFTRSBcDQogICAgICAgICAgICAgICAgLWUgTVlTUUxfVVNFUj0kTVlTUUxfVVNFUiBcDQogICAgICAgICAgICAgICAgLWUgTVlTUUxfUEFTU1dPUkQ9JE1ZU1FMX1BBU1NXT1JEIFwNCiAgICAgICAgICAgICAgICAtdiAvbW50L2RhdGEvbXlzcWw6L3Zhci9saWIvbXlzcWwgXA0KICAgICAgICAgICAgICAgIC12ICRUTVBfU1FMX0ZJTEU6L2RvY2tlci1lbnRyeXBvaW50LWluaXRkYi5kL2d1YWNhbW9sZS5zcWwgXA0KICAgICAgICAgICAgICAgICRJTUFHRV9OQU1FDQogICAgICAgIGVsc2UNCiAgICAgICAgICAgICMgU3RhcnQgRG9ja2VyIGNvbnRhaW5lcg0KICAgICAgICAgICAgZG9ja2VyIHJ1biBcDQogICAgICAgICAgICAgICAgLS1uYW1lICRDT05UQUlORVJfTkFNRSBcDQogICAgICAgICAgICAgICAgLXYgL21udC9kYXRhL215c3FsOi92YXIvbGliL215c3FsIFwNCiAgICAgICAgICAgICAgICAkSU1BR0VfTkFNRQ0KICAgICAgICBmaQ0KICAtIHBhdGg6IC9vcHQvYmluL2RvY2tlci1tYXJpYWRiLXdhaXRlci5zaA0KICAgIG93bmVyOiByb290DQogICAgcGVybWlzc2lvbnM6ICcwNzU1Jw0KICAgIGNvbnRlbnQ6IHwNCiAgICAgICAgIyEvYmluL3NoDQogICAgICAgIA0KICAgICAgICAjIFRoaXMgc2NyaXB0IHdhaXRzIGZvciBNYXJpYURCIHRvIGJlIHJlYWR5IHRvIGFjY2VwdCBjb25uZWN0aW9ucw0KICAgICAgICANCiAgICAgICAgIyBQYXJhbWV0ZXJzDQogICAgICAgIElNQUdFX05BTUU9Im1hcmlhZGI6MTAuMSINCiAgICAgICAgQ09OVEFJTkVSX05BTUU9InNvbWUtbWFyaWFkYiINCiAgICAgICAgDQogICAgICAgICMgV2FpdCBhdCBsZWFzdCA2MCBzZWNvbmRzDQogICAgICAgIHNsZWVwIDYwDQogICAgICAgIA0KICAgICAgICAjIEtlZXAgcG9sbGluZyBkYXRhYmFzZSB1bnRpbCByZWFkeQ0KICAgICAgICB3aGlsZSAhIGRvY2tlciBydW4gLS1ybSAtLWxpbmsgJENPTlRBSU5FUl9OQU1FICRJTUFHRV9OQU1FIG15c3FsYWRtaW4gcGluZyAtaCAkQ09OVEFJTkVSX05BTUUgLS1zaWxlbnQ7IGRvDQogICAgICAgICAgICBzbGVlcCA1DQogICAgICAgIGRvbmUNCiAgICAgICAgICAgIA0KICAgICAgICAjIFdhaXQgNSBtb3JlIHNlY29uZHMgYmVmb3JlIHNlbmRpbmcgdGhlIGdyZWVuIGxpZ2h0DQogICAgICAgIHNsZWVwIDU="      
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[concat(variables('vmStorageAccountName'), copyindex(1))]",
+      "apiVersion": "2016-01-01",
+      "location": "[resourceGroup().location]",
+      "comments": "4 Storage accounts used to store the VM disks for each tier",
+      "tags": {
+        "displayName": "VM Storage Accounts",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "copy": {
+        "name": "vmStorageAccountLoop",
+        "count": 4
+      },
+      "sku": {
+        "name": "[variables('vmStorageAccountType')]"
+      },
+      "kind": "Storage",
+      "properties": {
+
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('diagStorageAccountName')]",
+      "apiVersion": "2016-01-01",
+      "location": "[resourceGroup().location]",
+      "comments": "Storage account used to store the diagnostics data",
+      "tags": {
+        "displayName": "Diagnostics Storage Account",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage",
+      "properties": {
+
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('webNSGName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NSG for Web Subnet. Rules for allowing HTTP and HTTPS requests from internet are created",
+      "tags": {
+        "displayName": "Web NSG",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "RDP-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "10.0.1.0/24",
+              "access": "Allow",
+              "priority": 130,
+              "direction": "Inbound"
+            }
+          },
+
+          {
+            "name": "HTTP-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "10.0.1.0/24",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "HTTPS-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "10.0.1.0/24",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('databaseNSGName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NSG for Database Subnet. By default, intra Vnet traffic is allowed and requests from internet are denied",
+      "tags": {
+        "displayName": "Database NSG",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "properties": {
+        "securityRules": [
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('jumpNSGName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NSG for Jump Subnet. Rules for allowing SSH from internet are created",
+      "tags": {
+        "displayName": "Jump NSG",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "SSH-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "10.0.0.128/25",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "HTTPS-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "10.0.0.128/25",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('webIPAddressName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": " Public IP used by the Web VM",
+      "tags": {
+        "displayName": "Web VM Public IP",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('webDnsLabel')]"
+        },
+        "idleTimeoutInMinutes": 4
+      }
+    }, 
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('virtualNetworkName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "Virtual network for overall solution",
+      "tags": {
+        "displayName": "Virtual Network",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('webNSGName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('databaseNSGName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('jumpNSGName'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('webTierSubnetName')]",
+            "properties": {
+              "addressPrefix": "10.0.1.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('webNSGName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('databaseTierSubnetName')]",
+            "properties": {
+              "addressPrefix": "10.0.3.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNSGName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('jumpSubnetName')]",
+            "properties": {
+              "addressPrefix": "10.0.0.128/25",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpNSGName'))]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('vnetPublicSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('vnetPublicSubnetAddressPrefix')]",
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[concat(variables('availSetName'), copyindex(1))]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "comments": "These are the Availability Sets for Web VMs, App VMs and Database VMs",
+      "tags": {
+        "displayName": "Availability Sets",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "copy": {
+        "name": "availSetLoop",
+        "count": 3
+      },
+      "properties": {
+
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('webTierVmNicName'), copyindex(1))]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NICs for Web Tier VMs",
+      "tags": {
+        "displayName": "Web Tier VM NICs",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+      ],
+      "copy": {
+        "name": "WebTierNicLoop",
+        "count": "[parameters('webTierVmCount')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('webIPAddressName'))]"
+              },              
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('webTierSubnetName'))]"
+              },
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('ansibleVmNicName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NIC for ansible",
+      "tags": {
+        "displayName": "Ansible VM NIC",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+      ],
+      "copy": {
+        "name": "WebTierNicLoop",
+        "count": "[parameters('webTierVmCount')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('webTierSubnetName'))]"
+              },
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('databaseTierVmNicName'), copyindex(1))]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NICs for Database Tier VMs",
+      "tags": {
+        "displayName": "Database Tier VM NICs",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
+      "copy": {
+        "name": "DatabaseTierNicLoop",
+        "count": "[parameters('databaseTierVmCount')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('databaseTierSubnetName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(variables('databaseTierVmName'),'-', copyindex(1))]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "comments": "Database Tier VMs",
+      "tags": {
+        "displayName": "Database Tier VMs",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'3')]",
+        "[concat('Microsoft.Network/networkInterfaces/', variables('databaseTierVmNicName'), copyindex(1))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('availSetName'),'2')]"
+      ],
+      "copy": {
+        "name": "DatabaseTierVMLoop",
+        "count": "[parameters('databaseTierVmCount')]"
+      },
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',concat(variables('availSetName'),'2'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[concat('databaseserver',copyindex(1))]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('imageSKU')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[variables('databaseTierVmName')]",
+            "vhd": {
+              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'3'),'2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/', variables('databaseTierVmName'),copyIndex(1),'-','dbTierOSDisk','.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('databaseTierVmNicName'), copyindex(1)))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": "true",
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('diagStorageAccountName'))).primaryEndpoints.blob]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(variables('webTierVmName'),'-', copyindex(1))]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "comments": " Web Tier VMs",
+      "tags": {
+        "displayName": "Web Tier VMs",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'1')]",
+        "[concat('Microsoft.Network/networkInterfaces/', variables('webTierVmNicName'), copyindex(1))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('availSetName'),'1')]"
+      ],
+      "copy": {
+        "name": "WebTierVMLoop",
+        "count": "[parameters('webTierVmCount')]"
+      },
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',concat(variables('availSetName'),'1'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[concat('webserver',copyindex(1))]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[variables('webTierVmName')]",
+            "vhd": {
+              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'1'),'2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/', variables('webTierVmName'),copyIndex(1),'-','webTierOSDisk','.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('webTierVmNicName'), copyindex(1)))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": "true",
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('diagStorageAccountName'))).primaryEndpoints.blob]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('ansibleVmName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "comments": "Ansible VM",
+      "tags": {
+        "displayName": "Ansible VM",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'1')]",
+        "[concat('Microsoft.Network/networkInterfaces/', variables('ansibleVmNicName'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('availSetName'),'1')]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',concat(variables('availSetName'),'1'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('ansibleVmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('imageSKU')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[variables('ansibleVmName')]",
+            "vhd": {
+              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'1'),'2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/', variables('ansibleVmName'),'-','webTierOSDisk','.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('ansibleVmNicName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": "true",
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('diagStorageAccountName'))).primaryEndpoints.blob]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[variables('maprOpenVPNTemplate')]",
+      "type": "Microsoft.Resources/deployments",
+      "condition": "[equals(parameters('installOpenVPN'), 'true')]",
+      "apiVersion": "[variables('deploymentsVersion')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('artifactsBaseUrl'), '/openvpn.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "providerID": {
+            "value": "CD79582D-BEB4-4325-9DD6-34E684A304DB"
+          },
+          "clusterName": {
+            "value": "mapr"
+          },
+          "adminAuthType": {
+            "value": "sshPublicKey"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "adminPublicKey": {
+            "value": "[parameters('sshKeyData')]"
+          },
+          "diskType": {
+            "value": "Premium_LRS"
+          },
+          "fourDotSubnetPublic": {
+            "value": "[variables('fourDotSubnetPublic')]"
+          },
+          "ipAddress": {
+            "value": "[parameters('vnetPublicSubnetStartAddress')]"
+          },
+          "subnetRefPublic": {
+            "value": "[variables('subnetRefPublic')]"
+          },
+          "openvpnInstanceType": {
+            "value": "Standard_D2s_v3"
+          },
+          "openVpnUser": {
+            "value": "[parameters('openVpnUser')]"
+          },
+          "openVpnPassword": {
+            "value": "[parameters('openVpnPassword')]"
+          },
+          "addressPrefix": {
+            "value": "[variables('addressPrefix')]"
+          },
+          "publicAccessCIDR": {
+            "value": "[parameters('publicAccessCIDR')]"
+          },
+          "maprsgName": {
+            "value": "[variables('jumpNSGName')]"
+          },
+          "location": {
+            "value": "[resourceGroup().location]"
+          },
+          "artifactsBaseUrl": {
+            "value": "[parameters('artifactsBaseUrl')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "webVMIP": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('webIPAddressName'))).ipAddress]"
+    },
+    "webVMFqdn": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('webIPAddressName'))).dnsSettings.fqdn]"
+    }
+  }
+}
