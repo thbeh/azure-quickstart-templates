@@ -126,7 +126,7 @@
     "webNSGName": "common-svc-nsg",
     "webIPAddressName": "common-svc-pip",
     "webDnsLabel": "[concat('web',uniqueString(resourceGroup().id))]",
-    "databaseNSGName": "mapr-nsg",
+    "databaseNSGName": "mapr-vm-nsg",
     "jumpNSGName": "mapr-openvpn-nsg",
     "jumpIPAddressName": "gateway-pip",
     "jumpDnsLabel": "[concat('jump',uniqueString(resourceGroup().id))]",
@@ -328,25 +328,6 @@
         ]
       }
     },
-    {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('webIPAddressName')]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "comments": " Public IP used by the Web VM",
-      "tags": {
-        "displayName": "Web VM Public IP",
-        "quickstartName": "[variables('quickstartTags').name]",        
-        "provider": "[variables('redHatTags').provider]"
-      },
-      "properties": {
-        "publicIPAllocationMethod": "Static",
-        "dnsSettings": {
-          "domainNameLabel": "[variables('webDnsLabel')]"
-        },
-        "idleTimeoutInMinutes": 4
-      }
-    }, 
     {
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
