@@ -174,29 +174,6 @@
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[concat(variables('vmStorageAccountName'), copyindex(1))]",
-      "apiVersion": "2016-01-01",
-      "location": "[resourceGroup().location]",
-      "comments": "4 Storage accounts used to store the VM disks for each tier",
-      "tags": {
-        "displayName": "VM Storage Accounts",
-        "quickstartName": "[variables('quickstartTags').name]",        
-        "provider": "[variables('redHatTags').provider]"
-      },
-      "copy": {
-        "name": "vmStorageAccountLoop",
-        "count": 4
-      },
-      "sku": {
-        "name": "[variables('vmStorageAccountType')]"
-      },
-      "kind": "Storage",
-      "properties": {
-
-      }
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('diagStorageAccountName')]",
       "apiVersion": "2016-01-01",
       "location": "[resourceGroup().location]",
