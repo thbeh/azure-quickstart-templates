@@ -86,6 +86,9 @@
     "vNetPrefix": "10.0.0.0/16",
     "vNetSubnet1Name": "subnet-01",
     "vNetSubnet1Prefix": "10.0.0.0/24",
+    "vmStorageAccountType": "Standard_GRS",
+    "vmStorageAccountName": "[concat(uniqueString(resourceGroup().id),'storage')]",
+    "vmStorageAccountContainerName": "vhds",    
     "storageAccountType": [ "Premium_LRS", "Standard_LRS" ],
     "storageAccountNamePrefix": [ "premium", "standard" ],
     "vmImagePublisher": "OpenLogic",
@@ -103,23 +106,6 @@
     "sshKeyPath": "[concat('/home/', parameters('vmAdminUserName'),'/.ssh/authorized_keys')]"
   },
   "resources": [
-    {
-      "name": "[concat(variables('storageAccountNamePrefix')[copyIndex()],uniqueString(resourceGroup().id))]",
-      "type": "Microsoft.Storage/storageAccounts",
-      "location": "[parameters('existingVNETLocation')]",
-      "apiVersion": "2015-06-15",
-      "copy": {
-        "count": "[length(variables('storageAccountType'))]",
-        "name": "storageAccountCopy"
-      },
-      "dependsOn": [],
-      "tags": {
-        "displayName": "[concat(variables('storageAccountNamePrefix')[copyIndex()],uniqueString(resourceGroup().id))]"
-      },
-      "properties": {
-        "accountType": "[variables('storageAccountType')[copyIndex()]]"
-      }
-    },
     {
       "name": "[concat(variables('vmNicName'), copyindex(1))]",
       "type": "Microsoft.Network/networkInterfaces",
@@ -192,7 +178,7 @@
             "name": "[variables('vmOSDiskName')]",
             "diskSizeGB": "[parameters('vmDiskGB')]",
             "vhd": {
-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', concat(variables('vmOSDiskName'),copyIndex(1)), '.vhd')]"
+              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'3'),'2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/', variables('vmContainerName'), '/', concat(variables('vmOSDiskName'),copyIndex(1)), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
