@@ -439,34 +439,6 @@
       }
     },
     {
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('jumpVmNicName')]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "comments": "NIC for Jump VM",
-      "tags": {
-        "displayName": "Jump VM NIC",
-        "quickstartName": "[variables('quickstartTags').name]",        
-        "provider": "[variables('redHatTags').provider]"
-      },
-      "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('jumpSubnetName'))]"
-              }
-            }
-          }
-        ]
-      }
-    },        
-    {
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat(variables('databaseTierVmName'),'-', copyindex(1))]",
       "apiVersion": "2015-06-15",
