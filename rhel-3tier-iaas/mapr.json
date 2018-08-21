@@ -122,7 +122,7 @@
     "virtualNetworkName": "poc-vnet",
     "webTierSubnetName": "common-svc-subnet",
     "databaseTierSubnetName": "mapr-subnet",
-    "jumpSubnetName": "gateway-subnet",
+    "jumpSubnetName": "mapr-openvpn-subnet",
     "webNSGName": "common-svc-nsg",
     "webIPAddressName": "common-svc-pip",
     "webDnsLabel": "[concat('web',uniqueString(resourceGroup().id))]",
@@ -458,6 +458,37 @@
       }
     },
     {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('jumpVmNicName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NIC for Jump VM",
+      "tags": {
+        "displayName": "Jump VM NIC",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('jumpIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('jumpSubnetName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },        
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat(variables('databaseTierVmName'),'-', copyindex(1))]",
       "apiVersion": "2015-06-15",
@@ -590,14 +621,4 @@
       }
     }
   ],
-  "outputs": {
-    "webVMIP": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('webIPAddressName'))).ipAddress]"
-    },
-    "webVMFqdn": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('webIPAddressName'))).dnsSettings.fqdn]"
-    }
-  }
 }
