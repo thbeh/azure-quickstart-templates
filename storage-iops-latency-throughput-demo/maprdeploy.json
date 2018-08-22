@@ -101,6 +101,23 @@
   },
   "resources": [
     {
+      "name": "[concat(variables('storageAccountNamePrefix')[copyIndex()],uniqueString(resourceGroup().id))]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "copy": {
+        "count": "[length(variables('storageAccountType'))]",
+        "name": "storageAccountCopy"
+      },
+      "dependsOn": [],
+      "tags": {
+        "displayName": "[concat(variables('storageAccountNamePrefix')[copyIndex()],uniqueString(resourceGroup().id))]"
+      },
+      "properties": {
+        "accountType": "[variables('storageAccountType')[copyIndex()]]"
+      }
+    },
+    {
       "name": "[concat(variables('vmNicName'), copyindex(1))]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
