@@ -119,7 +119,7 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[variables('vmSubnetRef')]",
+                "id": "[variables('subnetRef')]",
               }
             }
           }
