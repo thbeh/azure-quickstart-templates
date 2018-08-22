@@ -81,7 +81,7 @@
     "vNetSubnet1Name": "subnet-01",
     "vNetSubnet1Prefix": "10.0.0.0/24",
     "vmStorageAccountType": "Standard_GRS",
-    "vmStorageAccountName": "kkczuzmnkatmgstorage3",
+    "vmStorageAccountName": "kkczuzmnkatmgstorage",
     "vmStorageAccountContainerName": "vhds",    
     "storageAccountType": [ "Premium_LRS", "Standard_LRS" ],
     "storageAccountNamePrefix": [ "premium", "standard" ],
