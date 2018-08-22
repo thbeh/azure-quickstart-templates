@@ -88,6 +88,21 @@
     "vmImagePublisher": "OpenLogic",
     "vm1ImageOffer": "CentOS",
     "vm1ImageSKU": "7.4",
+    "imagePublisher": "mapr-technologies",
+    "imageOffer": "mapr60-base",
+    "imageSKU": "60-byol",
+    "imageVersion": "1.9.0",
+    "imageReference": {
+      "publisher": "[variables('imagePublisher')]",
+      "offer": "[variables('imageOffer')]",
+      "sku": "[variables('imageSKU')]",
+      "version": "[variables('imageVersion')]"
+    },
+    "plan": {
+      "name": "[variables('imageSKU')]",
+      "publisher": "[variables('imagePublisher')]",
+      "product": "[variables('imageOffer')]"
+    },
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
     "vmSize": "Standard_D32S_V3",
     "vmName": "mapr",
@@ -155,6 +170,7 @@
       	"name": "VMCountLoop",
       	"count": "[parameters('vmCount')]"
       },
+      "plan": "[variables('plan')]",
       "tags": {
         "displayName": "[variables('vmName')]"
       },
@@ -178,12 +194,7 @@
           }
         },
         "storageProfile": {
-          "imageReference": {
-            "publisher": "[variables('vmImagePublisher')]",
-            "offer": "[variables('vm1ImageOffer')]",
-            "sku": "[variables('vm1ImageSKU')]",
-            "version": "latest"
-          },
+          "imageReference" : "[variables('imageReference')]",
           "osDisk": {
             "name": "[variables('vmOSDiskName')]",
             "diskSizeGB": "[parameters('vmDiskGB')]",
