@@ -87,7 +87,7 @@
     "storageAccountNamePrefix": [ "premium", "standard" ],
     "vmImagePublisher": "OpenLogic",
     "vm1ImageOffer": "CentOS",
-    "vm1ImageSKU": "7.3",
+    "vm1ImageSKU": "7-CI",
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
     "vmSize": "Standard_D32S_V3",
     "vmName": "mapr",
