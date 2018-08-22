@@ -132,7 +132,7 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
-        "storageAccountCopy",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'),'3')]",
         "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmNicName'), copyIndex(1)))]"
       ],
       "copy": {
