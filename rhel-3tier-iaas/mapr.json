@@ -375,38 +375,6 @@
       }
     },
     {
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(variables('databaseTierVmNicName'), copyindex(1))]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "comments": "NICs for Database Tier VMs",
-      "tags": {
-        "displayName": "Database Tier VM NICs",
-        "quickstartName": "[variables('quickstartTags').name]",        
-        "provider": "[variables('redHatTags').provider]"
-      },
-      "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
-      ],
-      "copy": {
-        "name": "DatabaseTierNicLoop",
-        "count": "[parameters('databaseTierVmCount')]"
-      },
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('databaseTierSubnetName'))]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "[variables('maprOpenVPNTemplate')]",
       "type": "Microsoft.Resources/deployments",
       "condition": "[equals(parameters('installOpenVPN'), 'true')]",
