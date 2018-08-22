@@ -370,15 +370,6 @@
             }
           },
           {
-            "name": "[variables('jumpSubnetName')]",
-            "properties": {
-              "addressPrefix": "10.0.0.128/25",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpNSGName'))]"
-              }
-            }
-          },
-          {
             "name": "[parameters('vnetPublicSubnetName')]",
             "properties": {
               "addressPrefix": "[parameters('vnetPublicSubnetAddressPrefix')]",
