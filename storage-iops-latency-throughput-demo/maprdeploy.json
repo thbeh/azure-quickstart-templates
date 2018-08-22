@@ -88,21 +88,6 @@
     "vmImagePublisher": "OpenLogic",
     "vm1ImageOffer": "CentOS",
     "vm1ImageSKU": "7.4",
-    "imagePublisher": "mapr-technologies",
-    "imageOffer": "mapr60-base",
-    "imageSKU": "60-byol",
-    "imageVersion": "1.9.0",
-    "imageReference": {
-      "publisher": "[variables('imagePublisher')]",
-      "offer": "[variables('imageOffer')]",
-      "sku": "[variables('imageSKU')]",
-      "version": "[variables('imageVersion')]"
-    },
-    "plan": {
-      "name": "[variables('imageSKU')]",
-      "publisher": "[variables('imagePublisher')]",
-      "product": "[variables('imageOffer')]"
-    },
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
     "vmSize": "Standard_D32S_V3",
     "vmName": "mapr",
@@ -112,7 +97,8 @@
     "vmNicName": "[concat(variables('vmName'),'-nic-')]",
     "dscResourceFolder": "dsc",
     "dscResourceConfig": "vmDemo",
-    "sshKeyPath": "[concat('/home/', parameters('vmAdminUserName'),'/.ssh/authorized_keys')]"
+    "sshKeyPath": "[concat('/home/', parameters('vmAdminUserName'),'/.ssh/authorized_keys')]",
+    "cloudConfig": "I2Nsb3VkLWNvbmZpZwpkaXNrX3NldHVwOgogIGVwaGVtZXJhbDA6CiAgICB0YWJsZV90eXBlOiBncHQKICAgIGxheW91dDogWzY2LCBbMzMsODJdXQogICAgb3ZlcndyaXRlOiB0cnVlCmZzX3NldHVwOgogIC0gZGV2aWNlOiBlcGhlbWVyYWwwLjEKICAgIGZpbGVzeXN0ZW06IGV4dDQKICAtIGRldmljZTogZXBoZW1lcmFsMC4yCiAgICBmaWxlc3lzdGVtOiBzd2FwCm1vdW50czoKICAtIFsiZXBoZW1lcmFsMC4xIiwgIi9tbnQiXQogIC0gWyJlcGhlbWVyYWwwLjIiLCAibm9uZSIsICJzd2FwIiwgInN3IiwgIjAiLCAiMCJdCg=="
   },
   "resources": [
     {
@@ -170,7 +156,6 @@
       	"name": "VMCountLoop",
       	"count": "[parameters('vmCount')]"
       },
-      "plan": "[variables('plan')]",
       "tags": {
         "displayName": "[variables('vmName')]"
       },
@@ -181,6 +166,7 @@
         "osProfile": {
           "computerName": "[concat(variables('vmName'),'-',copyindex(1))]",
           "adminUsername": "[parameters('vmAdminUserName')]",
+          "customData": "[variables('cloudConfig')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "true",
             "ssh": {
@@ -194,7 +180,12 @@
           }
         },
         "storageProfile": {
-          "imageReference" : "[variables('imageReference')]",
+          "imageReference": {
+            "publisher": "[variables('vmImagePublisher')]",
+            "offer": "[variables('vm1ImageOffer')]",
+            "sku": "[variables('vm1ImageSKU')]",
+            "version": "latest"
+          },
           "osDisk": {
             "name": "[variables('vmOSDiskName')]",
             "diskSizeGB": "[parameters('vmDiskGB')]",
