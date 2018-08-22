@@ -41,12 +41,6 @@
         "description": "Name of the subnet in the VNet you want to use"
       }
     },
-    "existingVNETLocation" : {
-      "type": "string",
-      "metadata": {
-        "description": "Location of existing VNET"
-      }
-    },
     "sshKeyData": {
       "type": "string",
       "metadata": {
@@ -109,7 +103,7 @@
     {
       "name": "[concat(variables('vmNicName'), copyindex(1))]",
       "type": "Microsoft.Network/networkInterfaces",
-      "location": "[parameters('existingVNETLocation')]",
+      "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
       "tags": {
         "displayName": "[variables('vmNicName')]"
@@ -135,7 +129,7 @@
     {
       "name": "[concat(variables('vmName'),'-',copyIndex(1))]",
       "type": "Microsoft.Compute/virtualMachines",
-      "location": "[parameters('existingVNETLocation')]",
+      "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "storageAccountCopy",
