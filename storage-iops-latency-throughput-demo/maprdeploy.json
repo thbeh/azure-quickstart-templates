@@ -99,7 +99,7 @@
     "dscResourceFolder": "dsc",
     "dscResourceConfig": "vmDemo",
     "sshKeyPath": "[concat('/home/', parameters('vmAdminUserName'),'/.ssh/authorized_keys')]",
-    "cloudConfig": "I2Nsb3VkLWNvbmZpZwpkaXNrX3NldHVwOgogIGVwaGVtZXJhbDA6CiAgICB0YWJsZV90eXBlOiBncHQKICAgIGxheW91dDogWzY2LCBbMzMsODJdXQogICAgb3ZlcndyaXRlOiB0cnVlCmZzX3NldHVwOgogIC0gZGV2aWNlOiBlcGhlbWVyYWwwLjEKICAgIGZpbGVzeXN0ZW06IGV4dDQKICAtIGRldmljZTogZXBoZW1lcmFsMC4yCiAgICBmaWxlc3lzdGVtOiBzd2FwCm1vdW50czoKICAtIFsiZXBoZW1lcmFsMC4xIiwgIi9tbnQiXQogIC0gWyJlcGhlbWVyYWwwLjIiLCAibm9uZSIsICJzd2FwIiwgInN3IiwgIjAiLCAiMCJdCg=="
+    "cloudConfig": "I2Nsb3VkLWNvbmZpZwpkaXNrX3NldHVwOgogIGVwaGVtZXJhbDA6CiAgICB0YWJsZV90eXBlOiBncHQKICAgIGxheW91dDogWzk3LCBbMyw4Ml1dCiAgICBvdmVyd3JpdGU6IHRydWUKZnNfc2V0dXA6CiAgLSBkZXZpY2U6IGVwaGVtZXJhbDAuMQogICAgZmlsZXN5c3RlbTogZXh0NAogIC0gZGV2aWNlOiBlcGhlbWVyYWwwLjIKICAgIGZpbGVzeXN0ZW06IHN3YXAKbW91bnRzOgogIC0gWyJlcGhlbWVyYWwwLjEiLCAiL21udCJdCiAgLSBbImVwaGVtZXJhbDAuMiIsICJub25lIiwgInN3YXAiLCAic3ciLCAiMCIsICIwIl0K"
   },
   "resources": [
     {
