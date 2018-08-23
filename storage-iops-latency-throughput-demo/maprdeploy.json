@@ -91,6 +91,7 @@
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
     "vmSize": "Standard_D32S_V3",
     "vmName": "mapr",
+    "OSDiskGB": 200,
     "vmWindowsOSVersion": "7.2n",
     "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName')), '/subnets/', parameters('existingSubnetName'))]",
     "vmContainerName": "vhds",
@@ -188,7 +189,7 @@
           },
           "osDisk": {
             "name": "[variables('vmOSDiskName')]",
-            "diskSizeGB": "[parameters('vmDiskGB')]",
+            "diskSizeGB": "[variables('OSDiskGB')]",
             "vhd": {
               "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', concat(variables('vmOSDiskName'),copyIndex(1)), '.vhd')]"
             },
