@@ -96,6 +96,7 @@
     "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName')), '/subnets/', parameters('existingSubnetName'))]",
     "vmContainerName": "vhds",
     "vmNicName": "[concat(variables('vmName'),'-nic-')]",
+    "vmDataDiskName": "[concat(variables('vmName'),'-disk-')]",
     "dscResourceFolder": "dsc",
     "dscResourceConfig": "vmDemo",
     "diskCreateOption": "empty",
@@ -120,23 +121,6 @@
         "accountType": "[variables('storageAccountType')[copyIndex()]]"
       }
     },
-    {
-      "apiVersion": "2016-04-30-preview",
-      "type": "Microsoft.Compute/disks",
-      "name": "[concat(variables('vmName'),'-premiumdata-',copyIndex())]",
-      "location": "[parameters('location')]",
-      "copy": {
-        "name": "diskCopy",
-        "count": "[length(parameters('vmDiskCount'))]"
-      },
-      "properties": {
-        "creationData": {
-          "createOption": "[variables('diskCreateOption')]"
-        },
-        "accountType": "[variables('storageAccountNamePrefix')[0]",
-        "diskSizeGB": "[parameters('vmDiskGB')[copyIndex()]]"
-      }
-    },    
     {
       "name": "[concat(variables('vmNicName'), copyindex(1))]",
       "type": "Microsoft.Network/networkInterfaces",
@@ -223,10 +207,7 @@
                 "diskSizeGB": "[parameters('vmDiskGB')]",
                 "lun": "[copyIndex('dataDisks')]",
                 "caching": "ReadWrite",
-                "createOption": "Attach",
-                "managedDisk": {
-                  "id": "[resourceId('Microsoft.Compute/disks',concat(variables('vmName'),'-premiumdata-',copyIndex('dataDisks')))]"
-                }
+                "createOption": "Empty",
               }
             }
           ]
