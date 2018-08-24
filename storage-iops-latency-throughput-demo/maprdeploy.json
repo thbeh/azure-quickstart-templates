@@ -122,6 +122,19 @@
       }
     },
     {
+      "apiVersion": "2016-04-30-preview",
+      "type": "Microsoft.Compute/disks",
+      "name": "myManagedDisk",
+      "location": "[parameters('location')]",
+      "properties": {
+        "creationData": {
+          "createOption": "[variables('diskCreateOption')]"
+        },
+        "accountType": "[variables('storageAccountNamePrefix')[0]",
+        "diskSizeGB": "[parameters('vmDiskGB')]"
+      }
+    },        
+    {
       "name": "[concat(variables('vmNicName'), copyindex(1))]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
@@ -208,7 +221,9 @@
                 "lun": "[copyIndex('dataDisks')]",
                 "caching": "ReadWrite",
                 "createOption": "Empty",
-                "managedDisk": { "storageAccountType": "Premium_LRS" }
+                "managedDisk": {  
+                   "id": "[resourceId('Microsoft.Compute/disks','myManagedDisk')]"
+                }
               }
             }
           ]
