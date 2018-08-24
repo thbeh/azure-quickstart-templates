@@ -124,8 +124,12 @@
     {
       "apiVersion": "2016-04-30-preview",
       "type": "Microsoft.Compute/disks",
-      "name": "myManagedDisk",
+      "name": "[concat(variables('vmDataDiskName'), copyindex(1))]",
       "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "diskCopy",
+        "count": "[parameters('vmCount')]"
+      },
       "properties": {
         "creationData": {
           "createOption": "[variables('diskCreateOption')]"
@@ -220,9 +224,9 @@
                 "diskSizeGB": "[parameters('vmDiskGB')]",
                 "lun": "[copyIndex('dataDisks')]",
                 "caching": "ReadWrite",
-                "createOption": "Empty",
+                "createOption": "Attach",
                 "managedDisk": {  
-                   "id": "[resourceId('Microsoft.Compute/disks','myManagedDisk')]"
+                   "id": "[resourceId('Microsoft.Network/disks', concat(variables('vmDataDiskName'), copyIndex(1)))]"
                 }
               }
             }
