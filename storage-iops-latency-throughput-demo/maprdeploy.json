@@ -134,7 +134,7 @@
         "creationData": {
           "createOption": "[variables('diskCreateOption')]"
         },
-        "accountType": "[variables('storageAccountNamePrefix')[0]",
+        "accountType": "[variables('storageAccountNamePrefix')[0]]",
         "diskSizeGB": "[parameters('vmDiskGB')]"
       }
     },        
