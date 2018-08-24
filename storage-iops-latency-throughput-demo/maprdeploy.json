@@ -98,6 +98,7 @@
     "vmNicName": "[concat(variables('vmName'),'-nic-')]",
     "dscResourceFolder": "dsc",
     "dscResourceConfig": "vmDemo",
+    "diskCreateOption": "empty",
     "sshKeyPath": "[concat('/home/', parameters('vmAdminUserName'),'/.ssh/authorized_keys')]",
     "cloudConfig": "I2Nsb3VkLWNvbmZpZwpwYWNrYWdlczoKICAtIGVwZWwtcmVsZWFzZQpkaXNrX3NldHVwOgogIGVwaGVtZXJhbDA6CiAgICB0YWJsZV90eXBlOiBncHQKICAgIGxheW91dDogWzk4LCBbMiw4Ml1dCiAgICBvdmVyd3JpdGU6IHRydWUKZnNfc2V0dXA6CiAgLSBkZXZpY2U6IGVwaGVtZXJhbDAuMQogICAgZmlsZXN5c3RlbTogZXh0NAogIC0gZGV2aWNlOiBlcGhlbWVyYWwwLjIKICAgIGZpbGVzeXN0ZW06IHN3YXAKbW91bnRzOgogIC0gWyJlcGhlbWVyYWwwLjEiLCAiL21udCJdCiAgLSBbImVwaGVtZXJhbDAuMiIsICJub25lIiwgInN3YXAiLCAic3ciLCAiMCIsICIwIl0KCnNzaF9hdXRob3JpemVkX2tleXM6CiAgLSBzc2gtcnNhIEFBQUFCM056YUMxeWMyRUFBQUFCSlFBQUFRRUFub1VQR1JyKzJTd2VhSE9paEQ3V1pBbHhuSGNMRGUvQ0JnOWpGaGEwa244VHRoWkZaNEg5VXVzdXNHeDUwc0dvQkU2c3d2b2NLNUlpamlnT1U5SVZQTS9IdXBxbnVOM2E2K0hVeVBkUmJmVzZJSUtaQ3ZxWlNBSEVCZUNCZFhvd0JnVGkrQkdKU3p4VGgvTkdubndxdGhSNUtjazVNMzVYV0swWVU5Vjg4aTZhWmQ3M2Zya2MxdEtEa3I5WkRKWmVRZDRkRm5iaWEwd2pFWHF4Z1RDSWo4YzBvME5JdlZibWhyWk1VZGhDeTAyaC9zejdYbnZnc3BzQllBMlMvcTg4T29JODVlVG5ka0pNUlg0TnJjSUtBN1lDUjg5ekFYR0F1VnhrdU1qS3p3Tk8vNzlMek00WTFZTU96bWNDZk04MXBnY2tnUER5MUpJRWJRMGVEaHU3aVE9PSByc2Eta2V5LTIwMTgwODI1CgpydW5jbWQ6CiAgLSBybSAvZXRjL21vdGQKcmVzaXplX3Jvb3RmczogVHJ1ZQoKbWFuYWdlX2V0Y19ob3N0czogVHJ1ZQo="
   },
@@ -119,6 +120,23 @@
         "accountType": "[variables('storageAccountType')[copyIndex()]]"
       }
     },
+    {
+      "apiVersion": "2016-04-30-preview",
+      "type": "Microsoft.Compute/disks",
+      "name": "[concat(variables('vmName'),'-premiumdata-',copyIndex())]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "diskCopy",
+        "count": "[length(parameters('vmDiskCount'))]"
+      },
+      "properties": {
+        "creationData": {
+          "createOption": "[variables('diskCreateOption')]"
+        },
+        "accountType": "[variables('storageAccountNamePrefix')[0]",
+        "diskSizeGB": "[parameters('vmDiskGB')[copyIndex()]]"
+      }
+    },    
     {
       "name": "[concat(variables('vmNicName'), copyindex(1))]",
       "type": "Microsoft.Network/networkInterfaces",
@@ -207,7 +225,7 @@
                 "caching": "ReadWrite",
                 "createOption": "Attach",
                 "managedDisk": {
-                  "id": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', concat(variables('vmName'),'-premiumdata-',copyIndex(1)), copyIndex('dataDisks'), '.vhd')]"
+                  "id": "[resourceId('Microsoft.Compute/disks',concat(variables('vmName'),'-premiumdata-',copyIndex('dataDisks')))]"
                 }
               }
             }
