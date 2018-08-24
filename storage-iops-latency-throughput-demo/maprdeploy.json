@@ -205,9 +205,9 @@
                 "diskSizeGB": "[parameters('vmDiskGB')]",
                 "lun": "[copyIndex('dataDisks')]",
                 "caching": "ReadWrite",
-                "createOption": "Empty",
-                "vhd": {
-                  "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', concat(variables('vmName'),'-premiumdata-',copyIndex(1)), copyIndex('dataDisks'), '.vhd')]"
+                "createOption": "Attach",
+                "manageDisk": {
+                  "id": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', concat(variables('storageAccountNamePrefix')[0],uniqueString(resourceGroup().id))), '2016-01-01').primaryEndpoints.blob, variables('vmContainerName'), '/', concat(variables('vmName'),'-premiumdata-',copyIndex(1)), copyIndex('dataDisks'), '.vhd')]"
                 }
               }
             }
