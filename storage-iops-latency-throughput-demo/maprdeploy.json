@@ -151,7 +151,7 @@
       "name": "[concat(variables('vmName'),'-',copyIndex(1))]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2015-06-15",
+      "apiVersion": "2016-03-30",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmNicName'), copyIndex(1)))]"
       ],
@@ -208,6 +208,7 @@
                 "lun": "[copyIndex('dataDisks')]",
                 "caching": "ReadWrite",
                 "createOption": "Empty",
+                "managedDisk": { "storageAccountType": "Premium_LRS" }
               }
             }
           ]
