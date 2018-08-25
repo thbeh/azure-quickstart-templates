@@ -116,6 +116,23 @@
       "properties": {}
     },
     {
+      "apiVersion": "2016-04-30-preview",
+      "type": "Microsoft.Compute/disks",
+      "name": "[concat(variables('vmDataDiskName'), copyindex(1))]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "diskCopy",
+        "count": "[parameters('vmCount')]"
+      },
+      "properties": {
+        "creationData": {
+          "createOption": "[variables('diskCreateOption')]"
+        },
+        "accountType": "[variables('storageAccountType')[0]]",
+        "diskSizeGB": "[parameters('vmDiskGB')]"
+      }
+    },            
+    {
       "name": "[concat(variables('vmNicName'), copyindex(1))]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
