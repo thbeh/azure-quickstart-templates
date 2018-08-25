@@ -201,10 +201,13 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "[concat(variables('vmOSDiskName'), copyIndex())]",
+            "name": "[concat(variables('vmOSDiskName'), copyIndex(1))]",
             "diskSizeGB": "[variables('OSDiskGB')]",
             "caching": "ReadWrite",
-            "createOption": "FromImage"
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            }
           },
           "copy": [
             {
