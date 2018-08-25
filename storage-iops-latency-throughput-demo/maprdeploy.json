@@ -17,7 +17,7 @@
         "description": "The name of the virtual network resource."
       }
     },
-    "vmIndentifier": {
+    "vmIdentifier": {
       "type": "string",
       "metadata": {
         "description": "VM Identifier"
