@@ -223,7 +223,7 @@
             "caching": "ReadWrite",
             "createOption": "FromImage",
             "managedDisk": {
-              "id": "[resourceId('Microsoft.Network/disk', concat(variables('vmOSDiskName'), copyIndex(1)))]"
+              "id": "[resourceId('Microsoft.Network/disks', concat(variables('vmOSDiskName'), copyIndex(1)))]"
             }
           },
           "copy": [
