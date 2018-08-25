@@ -223,7 +223,7 @@
             "caching": "ReadWrite",
             "createOption": "FromImage",
             "managedDisk": {
-              "id": "[resourceId('Microsoft.Compute/disks', concat(variables('vmOSDiskName'), copyIndex(1)))]"
+              "storageAccountType": "Premium_LRS"
             }
           },
           "copy": [
