@@ -179,7 +179,7 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "[concat(variables('vmName'),padLeft(copyIndex(1),3,'0'), '-osDisk'))]", 
+            "name": "[concat(variables('vmName'), padLeft(copyIndex(1),3,'0'), '-osDisk' )]", 
             "diskSizeGB": "[variables('OSDiskGB')]",
             "caching": "ReadWrite",
             "createOption": "FromImage",
