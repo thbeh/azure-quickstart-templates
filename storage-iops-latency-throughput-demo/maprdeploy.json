@@ -201,7 +201,7 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "[concat(variables('vmOSDiskName'), copyIndex(1))]",
+            "name": "[concat(variables('vmOSDiskName'), copyIndex())]",
             "diskSizeGB": "[variables('OSDiskGB')]",
             "caching": "ReadWrite",
             "createOption": "FromImage"
