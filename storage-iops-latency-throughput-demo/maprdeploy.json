@@ -194,6 +194,7 @@
               "name": "dataDisks",
               "count": "[parameters('vmDiskCount')]",
               "input": {
+                "name": "[concat(variables('vmName'),'-dataDisk-',padLeft(copyIndex('dataDisks'),2,'0'))]",
                 "diskSizeGB": "[parameters('vmDiskGB')]",
                 "lun": "[copyIndex('dataDisks')]",
                 "caching": "ReadWrite",
