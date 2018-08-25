@@ -224,9 +224,9 @@
                 "diskSizeGB": "[parameters('vmDiskGB')]",
                 "lun": "[copyIndex('dataDisks')]",
                 "caching": "ReadWrite",
-                "createOption": "Attach",
+                "createOption": "Empty",
                 "managedDisk": {  
-                   "id": "[resourceId('Microsoft.Network/disks', concat(variables('vmDataDiskName'), copyIndex(1)))]"
+                   "storageAccountType": "Premium_LRS"
                 }
               }
             }
