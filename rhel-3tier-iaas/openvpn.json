@@ -67,7 +67,7 @@
     "openvpnnicName": "[concat(variables('nonDotClusterName'), '-VPN-NIC')]",
     "openvpnpublicIPAddressName": "[concat(variables('nonDotClusterName'), '-VPN-IP')]",
     "openvpnvmName": "[concat(variables('nonDotClusterName'), '-VPN')]",
-    "openvpnosDiskName": "[concat(variables('openvpnvmName'), '-VPN-OS')]",
+    "openvpnosDiskName": "[concat(variables('openvpnvmName'), '-OS')]",
 
     "osProfile_password": {
       "computerName": "[variables('openvpnvmName')]",
