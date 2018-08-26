@@ -136,7 +136,7 @@
     "jumpNSGName": "[concat(parameters('vmIdentifier'),'-VPN-NSG')]",
     "jumpIPAddressName": "gateway-pip",
     "jumpDnsLabel": "[concat('jump',uniqueString(resourceGroup().id))]",
-    "availSetName": "avail-set-",
+    "availSetName": "[concat(parameters('vmIdentifier'),'-AVAIL-SET')]",
     "webTierVmNicName": "[concat(variables('webTierVmName'), '-nic-')]",
     "ansibleVmNicName": "[concat(variables('ansibleVmName'), '-nic')]",
     "databaseTierVmNicName": "[concat(variables('databaseTierVmName'), '-nic-')]",
@@ -363,7 +363,7 @@
     },
     {
       "type": "Microsoft.Compute/availabilitySets",
-      "name": "[concat(variables('availSetName'), copyindex(1))]",
+      "name": "[concat(variables('availSetName'), padLeft(copyIndex(1),2,'0'))]",
       "apiVersion": "2015-06-15",
       "location": "[resourceGroup().location]",
       "comments": "These are the Availability Sets for Web VMs, App VMs and Database VMs",
