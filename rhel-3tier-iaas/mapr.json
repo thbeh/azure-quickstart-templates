@@ -126,7 +126,7 @@
     "diagStorageAccountName": "[concat(uniqueString(resourceGroup().id),'diagstorage')]",
     "vmStorageAccountContainerName": "vhds",
     "virtualNetworkName": "[concat(parameters('vmIdentifier'),'-VNET')]",
-    "webTierSubnetName": "common-svc-subnet",
+    "webTierSubnetName": "[concat(parameters('vmIdentifier'),'-COMMON-SUBNET')]",
     "databaseTierSubnetName": "[concat(parameters('vmIdentifier'),'-SUBNET')]",
     "jumpSubnetName": "gateway-subnet",
     "webNSGName": "[concat(parameters('vmIdentifier'),'-COMMON-NSG')]",
