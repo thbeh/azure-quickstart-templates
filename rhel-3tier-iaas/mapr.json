@@ -110,6 +110,12 @@
       "metadata": {
         "description": "Virtual network public subnet address prefix"
       }
+    },
+    "vmIdentifier": {
+      "type": "string",
+      "metadata": {
+        "description": "VM Identifier"
+      }
     }
   },
 
@@ -119,15 +125,15 @@
     "vmStorageAccountName": "[concat(uniqueString(resourceGroup().id),'storage')]",
     "diagStorageAccountName": "[concat(uniqueString(resourceGroup().id),'diagstorage')]",
     "vmStorageAccountContainerName": "vhds",
-    "virtualNetworkName": "poc-vnet",
+    "virtualNetworkName": "[concat(parameters('vmIdentifier'),'-VNET')]",
     "webTierSubnetName": "common-svc-subnet",
-    "databaseTierSubnetName": "mapr-vm-subnet",
+    "databaseTierSubnetName": "[concat(parameters('vmIdentifier'),'-SUBNET')]",
     "jumpSubnetName": "gateway-subnet",
-    "webNSGName": "common-svc-nsg",
-    "webIPAddressName": "common-svc-pip",
+    "webNSGName": "[concat(parameters('vmIdentifier'),'COMMONN-NSG')]",
+    "webIPAddressName": "[concat(parameters('vmIdentifier'),'COMMONN-PIP')]",
     "webDnsLabel": "[concat('web',uniqueString(resourceGroup().id))]",
-    "databaseNSGName": "mapr-vm-nsg",
-    "jumpNSGName": "mapr-openvpn-nsg",
+    "databaseNSGName": "[concat(parameters('vmIdentifier'), -NSG')]",
+    "jumpNSGName": "[concat(parameters('vmIdentifier'),'-VPN-NSG')]",
     "jumpIPAddressName": "gateway-pip",
     "jumpDnsLabel": "[concat('jump',uniqueString(resourceGroup().id))]",
     "availSetName": "avail-set-",
@@ -390,7 +396,7 @@
             "value": "CD79582D-BEB4-4325-9DD6-34E684A304DB"
           },
           "clusterName": {
-            "value": "mapr"
+            "value": "[parameters('vmIdentifier')]"
           },
           "adminAuthType": {
             "value": "sshPublicKey"
