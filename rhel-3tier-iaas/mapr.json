@@ -129,7 +129,7 @@
     "webTierSubnetName": "common-svc-subnet",
     "databaseTierSubnetName": "[concat(parameters('vmIdentifier'),'-SUBNET')]",
     "jumpSubnetName": "gateway-subnet",
-    "webNSGName": "[concat(parameters('vmIdentifier'),'COMMONN-NSG')]",
+    "webNSGName": "[concat(parameters('vmIdentifier'),'-COMMON-NSG')]",
     "webIPAddressName": "[concat(parameters('vmIdentifier'),'COMMONN-PIP')]",
     "webDnsLabel": "[concat('web',uniqueString(resourceGroup().id))]",
     "databaseNSGName": "[concat(parameters('vmIdentifier'), '-NSG')]",
