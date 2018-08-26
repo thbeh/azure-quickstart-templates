@@ -132,7 +132,7 @@
     "webNSGName": "[concat(parameters('vmIdentifier'),'COMMONN-NSG')]",
     "webIPAddressName": "[concat(parameters('vmIdentifier'),'COMMONN-PIP')]",
     "webDnsLabel": "[concat('web',uniqueString(resourceGroup().id))]",
-    "databaseNSGName": "[concat(parameters('vmIdentifier'), -NSG')]",
+    "databaseNSGName": "[concat(parameters('vmIdentifier'), '-NSG')]",
     "jumpNSGName": "[concat(parameters('vmIdentifier'),'-VPN-NSG')]",
     "jumpIPAddressName": "gateway-pip",
     "jumpDnsLabel": "[concat('jump',uniqueString(resourceGroup().id))]",
