@@ -65,6 +65,13 @@
         "description": "Disk size in GB"
       }
     },
+    "vmType": {
+      "type": "string",
+      "defaultValue": "Standard_D32S_V3",
+      "metadata": {
+        "description": "VM Type"
+      }
+    },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
@@ -95,7 +102,7 @@
     "vm1ImageOffer": "CentOS",
     "vm1ImageSKU": "7-CI",
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
-    "vmSize": "Standard_D32S_V3",
+    "vmSize": "[parameters('vmType')]",
     "vmName": "[parameters('vmIdentifier')]",
     "OSDiskGB": 200,
     "vmWindowsOSVersion": "7.2n",
