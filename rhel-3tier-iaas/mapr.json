@@ -154,7 +154,7 @@
     "addressPrefix": "[parameters('vnetAddressPrefix')]",
     "fourDotSubnetPublic": "[concat(take(parameters('vnetPublicSubnetStartAddress'), add(lastIndexOf(parameters('vnetPublicSubnetStartAddress'), '.'), 1)), '0')]",
     "subnetPrefixPublic": "[parameters('vnetPublicSubnetAddressPrefix')]",
-    "subnetNamePublic": "[parameters('vnetPublicSubnetName')]",
+    "subnetNamePublic": "[variables('vnetPublicSubnetName')]",
     "subnetRefPublic": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePublic'))]",
 
     "subnetRefPrivate": "[concat(variables('virtualNetworkId'), '/subnets/', variables('webTierSubnetName'))]",
@@ -347,7 +347,7 @@
             }
           },
           {
-            "name": "[parameters('vnetPublicSubnetName')]",
+            "name": "[variables('vnetPublicSubnetName')]",
             "properties": {
               "addressPrefix": "[parameters('vnetPublicSubnetAddressPrefix')]",
               "networkSecurityGroup": {
