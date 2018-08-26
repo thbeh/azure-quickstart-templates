@@ -77,13 +77,6 @@
         "description": "Virtual network public subnet start address"
       }
     },
-    "vnetPublicSubnetName": {
-      "type": "string",
-      "defaultValue": "mapr-openvpn-subnet",
-      "metadata": {
-        "description": "Virtual network public subnet name"
-      }
-    },    
     "vnetResourceGroup": {
       "type": "string",
       "metadata": {
@@ -156,6 +149,7 @@
     "maprJumpBoxTemplate": "Mapr.JumpBox.Template",
     "deploymentsVersion": "2016-09-01",
     "computeApiVersion": "2017-03-30",
+    "vnetPublicSubnetName": "[concat(parameters(vmIdentifier),'-VPN-SUBNET')]",
     "virtualNetworkId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "addressPrefix": "[parameters('vnetAddressPrefix')]",
     "fourDotSubnetPublic": "[concat(take(parameters('vnetPublicSubnetStartAddress'), add(lastIndexOf(parameters('vnetPublicSubnetStartAddress'), '.'), 1)), '0')]",
@@ -356,6 +350,9 @@
             "name": "[parameters('vnetPublicSubnetName')]",
             "properties": {
               "addressPrefix": "[parameters('vnetPublicSubnetAddressPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpNSGName'))]"
+              }
             }
           }
         ]
