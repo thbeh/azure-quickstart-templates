@@ -64,10 +64,10 @@
     "publicIPAddressType": "Dynamic",
     "dnsLabelPrefix": "[toLower(concat(variables('nonDotClusterName'), '-', substring(uniqueString(resourceGroup().id, deployment().name), 0, 4)))]",
     "nonDotClusterName": "[replace(parameters('clusterName'), '.', '-')]",
-    "openvpnnicName": "[concat(variables('nonDotClusterName'), '-openvpn-nic')]",
-    "openvpnpublicIPAddressName": "[concat(variables('nonDotClusterName'), '-openvpn-ip')]",
-    "openvpnvmName": "[concat(variables('nonDotClusterName'), '-openvpn-vm')]",
-    "openvpnosDiskName": "[concat(variables('openvpnvmName'), '-osdisk')]",
+    "openvpnnicName": "[concat(variables('nonDotClusterName'), '-VPN-NIC')]",
+    "openvpnpublicIPAddressName": "[concat(variables('nonDotClusterName'), '-VPN-IP')]",
+    "openvpnvmName": "[concat(variables('nonDotClusterName'), '-VPN')]",
+    "openvpnosDiskName": "[concat(variables('openvpnvmName'), '-VPN-OS')]",
 
     "osProfile_password": {
       "computerName": "[variables('openvpnvmName')]",
