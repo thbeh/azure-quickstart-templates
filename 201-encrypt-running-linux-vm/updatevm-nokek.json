@@ -16,6 +16,7 @@
     },
     "keyVaultSecretUrl": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "KeyVault secret Url. Ex: https://diskencryptiontestaus.vault.azure.net/secrets/BitLockerEncryptionSecretWithKek/e088818e865e48488cf363af16dea596"
       }
