@@ -165,7 +165,6 @@
         "osProfile": {
           "computerName": "[concat(variables('vmName'),padLeft(copyindex(1),3,'0'))]",
           "adminUsername": "[parameters('vmAdminUserName')]",
-          "customData": "[variables('cloudConfig')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "true",
             "ssh": {
