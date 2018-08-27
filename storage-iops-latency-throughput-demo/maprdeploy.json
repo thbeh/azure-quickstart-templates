@@ -220,34 +220,35 @@
       },
       "resources": [
         {
-        "apiVersion": "2015-03-30",
-        "name": "maprvm-configure",
-        "type": "extensions",
-        "location": "[resourceGroup().location]",
-        "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', concat(variables('vmName'),padLeft(copyindex(1),3,'0')))]"
-        ],
-        "tags": {
-          "displayName": "maprvm-configure",
-        },
-        "properties": {
-          "publisher": "Microsoft.Azure.Extensions",
-          "type": "CustomScript",
-          "typeHandlerVersion": "2.0",
-          "autoUpgradeMinorVersion": true,
-          "settings": {
-            "fileUris": [
-              "https://raw.githubusercontent.com/thbeh/azure-quickstart-templates/master/storage-iops-latency-throughput-demo/install_swap.sh"
-            ]
+          "apiVersion": "2015-06-15",
+          "type": "extensions",
+          "name": "config-app",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', concat(variables('vmName'),copyindex()))]"
+          ],
+          "tags": {
+            "displayName": "config-app"
           },
-          "protectedSettings": {
-            "commandToExecute": "[concat('bash install_swap.sh')]"
+          "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "https://raw.githubusercontent.com/Microsoft/dotnet-core-sample-templates/master/dotnet-core-music-linux/scripts/config-music.sh"
+              ]
+            },
+            "protectedSettings": {
+              "commandToExecute": "[concat('sudo sh config-music.sh ',variables('musicStoreSqlName'), ' ', parameters('adminUsername'), ' ', parameters('sqlAdminPassword'))]"
+            }
           }
         }
-      }
-    ],
+      ]
 
-  }],
+    }
+  ],
 
   "outputs": {
     "vmURI": {
