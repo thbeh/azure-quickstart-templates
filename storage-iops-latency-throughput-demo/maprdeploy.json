@@ -158,6 +158,32 @@
       "tags": {
         "displayName": "[variables('vmName')]"
       },
+      "resources": [{
+        "apiVersion": "2017-03-30",
+        "name": "maprvm-configure",
+        "type": "extensions",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Compute/virtualMachines/', concat(variables('vmName'),padLeft(copyindex(1),3,'0')))]"
+        ],
+        "tags": {
+          "displayName": "maprvm-configure",
+        },
+        "properties": {
+          "publisher": "Microsoft.Azure.Extensions",
+          "type": "CustomScript",
+          "typeHandlerVersion": "2.0",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "fileUris": [
+              "https://raw.githubusercontent.com/thbeh/azure-quickstart-templates/master/storage-iops-latency-throughput-demo/install_swap.sh"
+            ]
+          },
+          "protectedSettings": {
+            "commandToExecute": "[concat('bash install_swap.sh')]"
+          }
+        }
+      }],
       "properties": {
         "hardwareProfile": {
           "vmSize": "[variables('vmSize')]"
