@@ -100,7 +100,7 @@
     "storageAccountNamePrefix": [ "premium", "standard" ],
     "vmImagePublisher": "OpenLogic",
     "vm1ImageOffer": "CentOS",
-    "vm1ImageSKU": "7-CI",
+    "vm1ImageSKU": "7.4",
     "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
     "vmSize": "[parameters('vmType')]",
     "vmName": "[parameters('vmIdentifier')]",
