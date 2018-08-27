@@ -235,7 +235,7 @@
             "autoUpgradeMinorVersion": true,
             "settings": {
               "fileUris": [
-                "[concat(parameters('artifactsBaseUrl'), '/install_swap.sh')]"
+                "[concat(parameters('_artifactsLocation'), '/install_swap.sh')]"
               ]
             },
             "protectedSettings": {
