@@ -218,20 +218,6 @@
           ]
         },
       },
-    },
-    {
-      "apiVersion": "2015-06-15",
-      "type": "Microsoft.Compute/availabilitySets",
-      "name": "[variables('availabilitySetName')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [],
-      "tags": {
-        "displayName": "avalibility-set"
-      },
-      "properties": {
-        "platformUpdateDomainCount": 5,
-        "platformFaultDomainCount": 3
-      }
     }
   ]
 }
