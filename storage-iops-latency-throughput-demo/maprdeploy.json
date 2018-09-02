@@ -148,7 +148,6 @@
       	"count": "[parameters('vmCount')]"
       },
       "properties": {
-        "enableAcceleratedNetworking": true,        
         "ipConfigurations": [
           {
             "name": "ipconfig1",
