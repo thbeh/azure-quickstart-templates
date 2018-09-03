@@ -87,10 +87,18 @@
       }
     },
     "diagnosticsStorageAccountName": {
-      "value": "zi4woyd3eyf5wdiagstorage"
+      "type": "string",
+      "defaultValue": "zi4woyd3eyf5wdiagstorage",
+      "metadata": {
+        "description": "diagnosticsStorageAccountName"
+      }
     },
     "diagnosticsStorageAccountId": {
-      "value": "/subscriptions/c0b23bf3-d491-4ee9-b876-2713d6f7b506/resourceGroups/MAPRAZBUILD-cluster/providers/Microsoft.Storage/storageAccounts/zi4woyd3eyf5wdiagstorage"
+      "type": "string",
+      "defaultValue": "/subscriptions/c0b23bf3-d491-4ee9-b876-2713d6f7b506/resourceGroups/MAPRAZBUILD-cluster/providers/Microsoft.Storage/storageAccounts/zi4woyd3eyf5wdiagstorage",
+      "metadata": {
+        "description": "diagnosticsStorageAccountId"
+      }
     },
     "_artifactsLocation": {
       "type": "string",
