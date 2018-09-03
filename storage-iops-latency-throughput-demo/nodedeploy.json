@@ -142,7 +142,8 @@
     "dscResourceConfig": "vmDemo",
     "diskCreateOption": "empty",
     "sshKeyPath": "[concat('/home/', parameters('vmAdminUserName'),'/.ssh/authorized_keys')]",
-    "diagStorageAccountName": "[concat(parameters('vmDiagStorage'),'diagstorage')]",    
+    "diagStorageAccountName": "[concat(parameters('vmDiagStorage'),'diagstorage')]",  
+    "diagnosticsExtensionName": "Microsoft.Insights.VMDiagnosticsSettings",
     "cloudConfig": "I2Nsb3VkLWNvbmZpZwpwYWNrYWdlczoKICAtIGVwZWwtcmVsZWFzZQpkaXNrX3NldHVwOgogIGVwaGVtZXJhbDA6CiAgICB0YWJsZV90eXBlOiBncHQKICAgIGxheW91dDogWzk4LjIsIFsxLjgsODJdXQogICAgb3ZlcndyaXRlOiB0cnVlCmZzX3NldHVwOgogIC0gZGV2aWNlOiBlcGhlbWVyYWwwLjEKICAgIGZpbGVzeXN0ZW06IGV4dDQKICAtIGRldmljZTogZXBoZW1lcmFsMC4yCiAgICBmaWxlc3lzdGVtOiBzd2FwCm1vdW50czoKICAtIFsiZXBoZW1lcmFsMC4xIiwgIi9tbnQiXQogIC0gWyJlcGhlbWVyYWwwLjIiLCAibm9uZSIsICJzd2FwIiwgInN3IiwgIjAiLCAiMCJdCgpzc2hfYXV0aG9yaXplZF9rZXlzOgogIC0gc3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBQkpRQUFBUUVBbm9VUEdScisyU3dlYUhPaWhEN1daQWx4bkhjTERlL0NCZzlqRmhhMGtuOFR0aFpGWjRIOVV1c3VzR3g1MHNHb0JFNnN3dm9jSzVJaWppZ09VOUlWUE0vSHVwcW51TjNhNitIVXlQZFJiZlc2SUlLWkN2cVpTQUhFQmVDQmRYb3dCZ1RpK0JHSlN6eFRoL05Hbm53cXRoUjVLY2s1TTM1WFdLMFlVOVY4OGk2YVpkNzNmcmtjMXRLRGtyOVpESlplUWQ0ZEZuYmlhMHdqRVhxeGdUQ0lqOGMwbzBOSXZWYm1oclpNVWRoQ3kwMmgvc3o3WG52Z3Nwc0JZQTJTL3E4OE9vSTg1ZVRuZGtKTVJYNE5yY0lLQTdZQ1I4OXpBWEdBdVZ4a3VNakt6d05PLzc5THpNNFkxWU1Pem1jQ2ZNODFwZ2NrZ1BEeTFKSUViUTBlRGh1N2lRPT0gcnNhLWtleS0yMDE4MDgyNQoKcnVuY21kOgogIC0gcm0gL2V0Yy9tb3RkCg=="
   },
   "resources": [
