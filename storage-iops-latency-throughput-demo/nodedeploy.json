@@ -1,0 +1,244 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmAdminUserName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The administrative user on the Windows VM."
+      }
+    },
+    "vNetName": {
+      "type": "string",
+      "defaultValue": "poc-vnet",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the virtual network resource."
+      }
+    },
+    "vmIdentifier": {
+      "type": "string",
+      "metadata": {
+        "description": "VM Identifier"
+      }
+    },
+    "vmCount" : {
+    	"type": "int",
+      "defaultValue": 1,
+    	"metadata": {
+    		"description": "Number of VMs"
+    	}
+    },
+    "existingVirtualNetworkName" : {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing VNet"
+      }
+    },
+    "existingVirtualNetworkResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Resource group containing the existing VNet"
+      }
+    },
+    "existingSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the subnet in the VNet you want to use"
+      }
+    },
+    "sshKeyData": {
+      "type": "string",
+      "metadata": {
+        "description": "Public key for SSH authentication"
+      }
+    },
+    "vmDiskCount": {
+      "type": "int",
+      "metadata": {
+        "description": "Number of Disks"
+      }
+    },
+    "vmDiskGB": {
+      "type": "int",
+      "metadata": {
+        "description": "Disk size in GB"
+      }
+    },
+    "vmType": {
+      "type": "string",
+      "defaultValue": "Standard_D32S_V3",
+      "metadata": {
+        "description": "VM Type"
+      }
+    },
+    "vmSuffix": {
+      "type": "int",
+      "metadata": {
+        "description": "VM Suffix"
+      }
+    },
+    "vmDiagStorage": {
+      "type": "string",
+      "defaultValue": "zi4woyd3eyf5wdiagstorage",
+      "metadata": {
+        "description": "Diagnostic storage name"
+      }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+      },
+      "defaultValue": "https://raw.githubusercontent.com/thbeh/azure-quickstart-templates/master/storage-iops-latency-throughput-demo/"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+      },
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "vnetID": "[resourceId(parameters('existingVirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]",
+    "subnetRef": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
+    "vNetPrefix": "10.0.0.0/16",
+    "vNetSubnet1Name": "subnet-01",
+    "vNetSubnet1Prefix": "10.0.0.0/24",
+    "vmStorageAccountType": "Standard_GRS",
+    "vmStorageAccountName": "kkczuzmnkatmgstorage",
+    "vmStorageAccountContainerName": "vhds",    
+    "storageAccountType": [ "Premium_LRS", "Standard_LRS" ],
+    "storageAccountNamePrefix": [ "premium", "standard" ],
+    "vmImagePublisher": "OpenLogic",
+    "vm1ImageOffer": "CentOS",
+    "vm1ImageSKU": "7.4",
+    "vmOSDiskName": "[concat(variables('vmName'),'-','OSDisk')]",
+    "vmSize": "[parameters('vmType')]",
+    "vmName": "[concat(parameters('vmIdentifier'), padLeft(parameters('vmSuffix'),3,'0'))]",
+    "OSDiskGB": 200,
+    "vmWindowsOSVersion": "7.2n",
+    "vmSubnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName')), '/subnets/', parameters('existingSubnetName'))]",
+    "vmContainerName": "vhds",
+    "vmNicName": "[concat(variables('vmName'),'-nic')]",
+    "vmDataDiskName": "[concat(variables('vmName'),'-disk-')]",
+    "dscResourceFolder": "dsc",
+    "dscResourceConfig": "vmDemo",
+    "diskCreateOption": "empty",
+    "sshKeyPath": "[concat('/home/', parameters('vmAdminUserName'),'/.ssh/authorized_keys')]",
+    "diagStorageAccountName": "[concat(uniqueString(resourceGroup().id),'diagstorage')]",    
+    "cloudConfig": "I2Nsb3VkLWNvbmZpZwpwYWNrYWdlczoKICAtIGVwZWwtcmVsZWFzZQpkaXNrX3NldHVwOgogIGVwaGVtZXJhbDA6CiAgICB0YWJsZV90eXBlOiBncHQKICAgIGxheW91dDogWzk4LjIsIFsxLjgsODJdXQogICAgb3ZlcndyaXRlOiB0cnVlCmZzX3NldHVwOgogIC0gZGV2aWNlOiBlcGhlbWVyYWwwLjEKICAgIGZpbGVzeXN0ZW06IGV4dDQKICAtIGRldmljZTogZXBoZW1lcmFsMC4yCiAgICBmaWxlc3lzdGVtOiBzd2FwCm1vdW50czoKICAtIFsiZXBoZW1lcmFsMC4xIiwgIi9tbnQiXQogIC0gWyJlcGhlbWVyYWwwLjIiLCAibm9uZSIsICJzd2FwIiwgInN3IiwgIjAiLCAiMCJdCgpzc2hfYXV0aG9yaXplZF9rZXlzOgogIC0gc3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBQkpRQUFBUUVBbm9VUEdScisyU3dlYUhPaWhEN1daQWx4bkhjTERlL0NCZzlqRmhhMGtuOFR0aFpGWjRIOVV1c3VzR3g1MHNHb0JFNnN3dm9jSzVJaWppZ09VOUlWUE0vSHVwcW51TjNhNitIVXlQZFJiZlc2SUlLWkN2cVpTQUhFQmVDQmRYb3dCZ1RpK0JHSlN6eFRoL05Hbm53cXRoUjVLY2s1TTM1WFdLMFlVOVY4OGk2YVpkNzNmcmtjMXRLRGtyOVpESlplUWQ0ZEZuYmlhMHdqRVhxeGdUQ0lqOGMwbzBOSXZWYm1oclpNVWRoQ3kwMmgvc3o3WG52Z3Nwc0JZQTJTL3E4OE9vSTg1ZVRuZGtKTVJYNE5yY0lLQTdZQ1I4OXpBWEdBdVZ4a3VNakt6d05PLzc5THpNNFkxWU1Pem1jQ2ZNODFwZ2NrZ1BEeTFKSUViUTBlRGh1N2lRPT0gcnNhLWtleS0yMDE4MDgyNQoKcnVuY21kOgogIC0gcm0gL2V0Yy9tb3RkCg=="
+  },
+  "resources": [
+    {
+      "name": "[concat(variables('vmName'),'-nic')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-09-01",
+      "tags": {
+        "displayName": "[concat(variables('vmName'),'-nic')]"
+      },
+      "copy" : {
+      	"name": "MapRNicLoop",
+      	"count": "[parameters('vmCount')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('vmName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmName'),'-nic'))]"
+      ],
+      "copy": {
+      	"name": "VMCountLoop",
+      	"count": "[parameters('vmCount')]"
+      },
+      "tags": {
+        "displayName": "[variables('vmName')]"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('vmName')]",
+          "adminUsername": "[parameters('vmAdminUserName')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[variables('sshKeyPath')]",
+                  "keyData": "[parameters('sshKeyData')]"
+                }
+              ]
+            }
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('vmImagePublisher')]",
+            "offer": "[variables('vm1ImageOffer')]",
+            "sku": "[variables('vm1ImageSKU')]",
+            "version": "7.4.20180704"
+          },
+          "osDisk": {
+            "name": "[concat(variables('vmName'),'-osDisk' )]", 
+            "diskSizeGB": "[variables('OSDiskGB')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            }
+          },
+          "copy": [
+            {
+              "name": "dataDisks",
+              "count": "[parameters('vmDiskCount')]",
+              "input": {
+                "name": "[concat(variables('vmName'),'-disk',padLeft(copyIndex('dataDisks',1),2,'0'))]",
+                "diskSizeGB": "[parameters('vmDiskGB')]",
+                "lun": "[copyIndex('dataDisks')]",
+                "caching": "ReadWrite",
+                "createOption": "Empty",
+                "managedDisk": {  
+                   "storageAccountType": "Premium_LRS"
+                }
+              }
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmName'),'-nic'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": "true",
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', parameters('vmDiagStorage'))).primaryEndpoints.blob]"
+          }
+        }        
+      }
+    }
+  ]
+}
