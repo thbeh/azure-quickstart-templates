@@ -235,7 +235,7 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": "true",
-            "storageUri": "[reference('/subscriptions/c0b23bf3-d491-4ee9-b876-2713d6f7b506/resourceGroups/MAPRAZBUILD-cluster/providers/Microsoft.Storage/storageAccounts/zi4woyd3eyf5wdiagstorage').primaryEndpoints.blob]"
+            "storageUri": "[reference(resourceId('/subscriptions/c0b23bf3-d491-4ee9-b876-2713d6f7b506/resourceGroups/MAPRAZBUILD-cluster/providers/Microsoft.Storage/storageAccounts/', variables('diagStorageAccountName'))).primaryEndpoints.blob]"
           }
         }        
       }
