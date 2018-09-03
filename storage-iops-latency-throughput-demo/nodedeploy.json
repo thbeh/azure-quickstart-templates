@@ -86,6 +86,12 @@
         "description": "Diagnostic storage name"
       }
     },
+    "diagnosticsStorageAccountName": {
+      "value": "zi4woyd3eyf5wdiagstorage"
+    },
+    "diagnosticsStorageAccountId": {
+      "value": "/subscriptions/c0b23bf3-d491-4ee9-b876-2713d6f7b506/resourceGroups/MAPRAZBUILD-cluster/providers/Microsoft.Storage/storageAccounts/zi4woyd3eyf5wdiagstorage"
+    },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
@@ -235,9 +241,33 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": "true",
-            "storageUri": "[concat('https://', parameters('diagStorageAccountName'), '.blob.core.windows.net/')]"
+            "storageUri": "[concat('https://', parameters('diagnosticsStorageAccountName'), '.blob.core.windows.net/')]"
           }
         }        
+      }
+    },
+    {
+      "name": "[concat(variables('vmName'),'/', variables('diagnosticsExtensionName'))]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2017-12-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "LinuxDiagnostic",
+        "typeHandlerVersion": "2.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "StorageAccount": "[parameters('diagnosticsStorageAccountName')]",
+          "xmlCfg": "[base64(variables('wadcfgx'))]"
+        },
+        "protectedSettings": {
+          "storageAccountName": "[parameters('diagnosticsStorageAccountName')]",
+          "storageAccountKey": "[listKeys(parameters('diagnosticsStorageAccountId'),'2015-06-15').key1]",
+          "storageAccountEndPoint": "https://core.windows.net/"
+        }
       }
     }
   ]
