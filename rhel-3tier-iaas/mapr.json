@@ -193,62 +193,6 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[variables('webNSGName')]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "comments": "NSG for Web Subnet. Rules for allowing HTTP and HTTPS requests from internet are created",
-      "tags": {
-        "displayName": "Web NSG",
-        "quickstartName": "[variables('quickstartTags').name]",        
-        "provider": "[variables('redHatTags').provider]"
-      },
-      "properties": {
-        "securityRules": [
-          {
-            "name": "RDP-allow",
-            "properties": {
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "3389",
-              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
-              "destinationAddressPrefix": "10.0.1.0/24",
-              "access": "Allow",
-              "priority": 130,
-              "direction": "Inbound"
-            }
-          },
-
-          {
-            "name": "HTTP-allow",
-            "properties": {
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "80",
-              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
-              "destinationAddressPrefix": "10.0.1.0/24",
-              "access": "Allow",
-              "priority": 110,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "HTTPS-allow",
-            "properties": {
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "443",
-              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
-              "destinationAddressPrefix": "10.0.1.0/24",
-              "access": "Allow",
-              "priority": 120,
-              "direction": "Inbound"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[variables('databaseNSGName')]",
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
@@ -283,22 +227,9 @@
               "sourcePortRange": "*",
               "destinationPortRange": "22",
               "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
-              "destinationAddressPrefix": "10.0.0.128/25",
+              "destinationAddressPrefix": "172.25.144.48/28",
               "access": "Allow",
               "priority": 110,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "HTTPS-allow",
-            "properties": {
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "443",
-              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
-              "destinationAddressPrefix": "10.0.0.128/25",
-              "access": "Allow",
-              "priority": 120,
               "direction": "Inbound"
             }
           }
@@ -331,7 +262,7 @@
           {
             "name": "[variables('webTierSubnetName')]",
             "properties": {
-              "addressPrefix": "10.0.1.0/24",
+              "addressPrefix": "172.25.144.0/27",
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('webNSGName'))]"
               }
@@ -340,7 +271,7 @@
           {
             "name": "[variables('databaseTierSubnetName')]",
             "properties": {
-              "addressPrefix": "10.0.3.0/24",
+              "addressPrefix": "172.25.144.48/28",
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNSGName'))]"
               }
