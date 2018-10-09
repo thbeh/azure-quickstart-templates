@@ -297,7 +297,7 @@
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "parameters('vnetAddressPrefix')"
+            "[parameters('vnetAddressPrefix')]"
           ]
         },
         "subnets": [
