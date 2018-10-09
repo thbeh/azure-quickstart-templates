@@ -269,7 +269,7 @@
           {
             "name": "[variables('databaseTierSubnetName')]",
             "properties": {
-              "addressPrefix": "[parameters('vnetClientSubnetAddressPrefix')]", 
+              "addressPrefix": "[parameters('vnetClusterSubnetAddressPrefix')]", 
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNSGName'))]"
               }
