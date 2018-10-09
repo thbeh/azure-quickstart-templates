@@ -89,7 +89,7 @@
       "metadata": {
         "description": "Virtual network address prefix"
       }
-    },
+    },    
     "publicAccessCIDR": {
       "type": "string",
       "defaultValue": "*",
@@ -104,6 +104,14 @@
         "description": "Virtual network public subnet address prefix"
       }
     },
+    "vnetClusterSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "172.25.144.0/27",
+      "metadata": {
+        "description": "Virtual network cluster subnet address prefix"
+      }
+    },
+
     "vmIdentifier": {
       "type": "string",
       "metadata": {
@@ -227,7 +235,7 @@
               "sourcePortRange": "*",
               "destinationPortRange": "22",
               "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
-              "destinationAddressPrefix": "172.25.144.48/28",
+              "destinationAddressPrefix": "[parameters('vnetPublicSubnetAddressPrefix')]",
               "access": "Allow",
               "priority": 110,
               "direction": "Inbound"
@@ -254,14 +262,14 @@
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "172.25.144.0/26"
+            "[parameters('vnetAddressPrefix')]"
           ]
         },
         "subnets": [
           {
             "name": "[variables('databaseTierSubnetName')]",
             "properties": {
-              "addressPrefix": "172.25.144.0/27",
+              "addressPrefix": "[parameters('vnetClientSubnetAddressPrefix')]", 
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNSGName'))]"
               }
