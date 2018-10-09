@@ -193,6 +193,48 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('webNSGName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "comments": "NSG for Web Subnet. Rules for allowing HTTP and HTTPS requests from internet are created",
+      "tags": {
+        "displayName": "Web NSG",
+        "quickstartName": "[variables('quickstartTags').name]",        
+        "provider": "[variables('redHatTags').provider]"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "HTTP-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "172.25.144.48/28",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "HTTPS-allow",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
+              "destinationAddressPrefix": "172.25.144.48/28",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },    
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[variables('databaseNSGName')]",
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
