@@ -72,7 +72,7 @@
     },
     "vnetPublicSubnetStartAddress": {
       "type": "string",
-      "defaultValue": "10.0.4.4",
+      "defaultValue": "172.25.144.62",
       "metadata": {
         "description": "Virtual network public subnet start address"
       }
@@ -85,7 +85,7 @@
     },
     "vnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/16",
+      "defaultValue": "172.25.144.0/26",
       "metadata": {
         "description": "Virtual network address prefix"
       }
@@ -99,7 +99,7 @@
     },
     "vnetPublicSubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.4.0/29",
+      "defaultValue": "172.25.144.48/28",
       "metadata": {
         "description": "Virtual network public subnet address prefix"
       }
@@ -119,11 +119,11 @@
     "diagStorageAccountName": "[concat(uniqueString(resourceGroup().id),'diagstorage')]",
     "vmStorageAccountContainerName": "vhds",
     "virtualNetworkName": "[concat(parameters('vmIdentifier'),'-VNET')]",
-    "webTierSubnetName": "[concat(parameters('vmIdentifier'),'-COMMON-SUBNET')]",
+    "webTierSubnetName": "[concat(parameters('vmIdentifier'),'-EDGE-SUBNET')]",
     "databaseTierSubnetName": "[concat(parameters('vmIdentifier'),'-SUBNET')]",
     "jumpSubnetName": "gateway-subnet",
     "webNSGName": "[concat(parameters('vmIdentifier'),'-COMMON-NSG')]",
-    "webIPAddressName": "[concat(parameters('vmIdentifier'),'COMMONN-PIP')]",
+    "webIPAddressName": "[concat(parameters('vmIdentifier'),'COMMON-PIP')]",
     "webDnsLabel": "[concat('web',uniqueString(resourceGroup().id))]",
     "databaseNSGName": "[concat(parameters('vmIdentifier'), '-NSG')]",
     "jumpNSGName": "[concat(parameters('vmIdentifier'),'-VPN-NSG')]",
@@ -190,49 +190,7 @@
       "properties": {
 
       }
-    },
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[variables('webNSGName')]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "comments": "NSG for Web Subnet. Rules for allowing HTTP and HTTPS requests from internet are created",
-      "tags": {
-        "displayName": "Web NSG",
-        "quickstartName": "[variables('quickstartTags').name]",        
-        "provider": "[variables('redHatTags').provider]"
-      },
-      "properties": {
-        "securityRules": [
-          {
-            "name": "HTTP-allow",
-            "properties": {
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "80",
-              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
-              "destinationAddressPrefix": "172.25.144.48/28",
-              "access": "Allow",
-              "priority": 110,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "HTTPS-allow",
-            "properties": {
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "443",
-              "sourceAddressPrefix": "[parameters('remoteAllowedCIDR')]",
-              "destinationAddressPrefix": "172.25.144.48/28",
-              "access": "Allow",
-              "priority": 120,
-              "direction": "Inbound"
-            }
-          }
-        ]
-      }
-    },    
+    }, 
     {
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[variables('databaseNSGName')]",
@@ -290,7 +248,6 @@
         "provider": "[variables('redHatTags').provider]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('webNSGName'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('databaseNSGName'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('jumpNSGName'))]"
       ],
@@ -302,18 +259,9 @@
         },
         "subnets": [
           {
-            "name": "[variables('webTierSubnetName')]",
-            "properties": {
-              "addressPrefix": "172.25.144.0/27",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('webNSGName'))]"
-              }
-            }
-          },
-          {
             "name": "[variables('databaseTierSubnetName')]",
             "properties": {
-              "addressPrefix": "172.25.144.48/28",
+              "addressPrefix": "172.25.144.0/27",
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNSGName'))]"
               }
