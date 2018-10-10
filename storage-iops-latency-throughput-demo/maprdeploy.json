@@ -9,6 +9,12 @@
         "description": "The administrative user on the Windows VM."
       }
     },
+    "vmAdminPassword": {
+      "minLength": 12,
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machines(Min Length: 12)"
+    },    
     "vNetName": {
       "type": "string",
       "defaultValue": "poc-vnet",
