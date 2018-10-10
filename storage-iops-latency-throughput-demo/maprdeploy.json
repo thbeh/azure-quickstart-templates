@@ -184,7 +184,7 @@
           "computerName": "[concat(variables('vmName'),padLeft(copyindex(1),3,'0'))]",
           "adminUsername": "[parameters('vmAdminUserName')]",
           "linuxConfiguration": {
-            "disablePasswordAuthentication": "true",
+            "disablePasswordAuthentication": "false",
             "ssh": {
               "publicKeys": [
                 {
