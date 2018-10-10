@@ -14,6 +14,7 @@
       "type": "securestring",
       "metadata": {
         "description": "Password for the Virtual Machines(Min Length: 12)"
+      }  
     },    
     "vNetName": {
       "type": "string",
