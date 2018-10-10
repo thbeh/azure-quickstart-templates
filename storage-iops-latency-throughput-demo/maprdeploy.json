@@ -14,7 +14,7 @@
       "type": "securestring",
       "metadata": {
         "description": "Password for the Virtual Machines(Min Length: 12)"
-      }  
+      }
     },    
     "vNetName": {
       "type": "string",
@@ -190,6 +190,7 @@
         "osProfile": {
           "computerName": "[concat(variables('vmName'),padLeft(copyindex(1),3,'0'))]",
           "adminUsername": "[parameters('vmAdminUserName')]",
+          "adminPassword": "[parameters('vmAdminPassword')]"
           "linuxConfiguration": {
             "disablePasswordAuthentication": "false",
             "ssh": {
