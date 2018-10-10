@@ -9,6 +9,13 @@
         "description": "The administrative user on the Windows VM."
       }
     },
+    "adminPassword": {
+      "minLength": 12,
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machines(Min Length: 12)"
+      }
+    },    
     "vNetName": {
       "type": "string",
       "defaultValue": "poc-vnet",
@@ -183,6 +190,7 @@
         "osProfile": {
           "computerName": "[concat(variables('vmName'),padLeft(copyindex(1),3,'0'))]",
           "adminUsername": "[parameters('vmAdminUserName')]",
+          "adminPassword": "[parameters('adminPassword')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "true",
             "ssh": {
