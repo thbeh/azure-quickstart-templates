@@ -190,7 +190,7 @@
         "osProfile": {
           "computerName": "[concat(variables('vmName'),padLeft(copyindex(1),3,'0'))]",
           "adminUsername": "[parameters('vmAdminUserName')]",
-          "adminPassword": "[parameters('vmAdminPassword')]"
+          "adminPassword": "[parameters('vmAdminPassword')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "false",
             "ssh": {
