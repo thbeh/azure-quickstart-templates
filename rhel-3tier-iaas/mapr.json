@@ -170,9 +170,9 @@
     "virtualNetworkId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "addressPrefix": "[parameters('vnetAddressPrefix')]",
     "fourDotSubnetPublic": "[concat(take(parameters('vnetPublicSubnetStartAddress'), add(lastIndexOf(parameters('vnetPublicSubnetStartAddress'), '.'), 1)), '0')]",
-    "vpnSubnetPublic": "[parameters('vpnAddressPrefix')]",
+    "vpnSubnetPublic": "172.25.144.32",
     "subnetPrefixPublic": "[parameters('vnetPublicSubnetAddressPrefix')]",
-    "subnetNamePublic": "[variables('vnetPublicSubnetName')]",
+    "subnetNamePublic": "[variables('vpnPublicSubnetName')]",
     "subnetRefPublic": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePublic'))]",
 
     "subnetRefPrivate": "[concat(variables('virtualNetworkId'), '/subnets/', variables('webTierSubnetName'))]",
