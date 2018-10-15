@@ -170,6 +170,7 @@
     "virtualNetworkId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "addressPrefix": "[parameters('vnetAddressPrefix')]",
     "fourDotSubnetPublic": "[concat(take(parameters('vnetPublicSubnetStartAddress'), add(lastIndexOf(parameters('vnetPublicSubnetStartAddress'), '.'), 1)), '0')]",
+    "vpnSubnetPublic": "[parameters('vpnAddressPrefix')]",
     "subnetPrefixPublic": "[parameters('vnetPublicSubnetAddressPrefix')]",
     "subnetNamePublic": "[variables('vnetPublicSubnetName')]",
     "subnetRefPublic": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePublic'))]",
@@ -358,7 +359,7 @@
             "value": "Premium_LRS"
           },
           "fourDotSubnetPublic": {
-            "value": "[variables('fourDotSubnetPublic')]"
+            "value": "[variables('vpnSubnetPublic')]"
           },
           "ipAddress": {
             "value": "[parameters('vnetPublicSubnetStartAddress')]"
