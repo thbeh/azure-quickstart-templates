@@ -18,7 +18,7 @@ echo "OPENVPN DOMAIN: $domain"
 /usr/local/openvpn_as/scripts/sacli -k vpn.client.tls_version_min_strict -v true ConfigPut
 /usr/local/openvpn_as/scripts/sacli -k vpn.server.tls_version_min -v 1.2 ConfigPut
 /usr/local/openvpn_as/scripts/sacli -k vpn.daemon.0.client.network -v $subnet ConfigPut
-/usr/local/openvpn_as/scripts/sacli -k vpn.daemon.0.client.netmask_bits -v 24 ConfigPut
+/usr/local/openvpn_as/scripts/sacli -k vpn.daemon.0.client.netmask_bits -v 28 ConfigPut
 /usr/local/openvpn_as/scripts/sacli -k vpn.client.routing.reroute_dns -v true ConfigPut
 /usr/local/openvpn_as/scripts/sacli -k vpn.server.dhcp_option.domain -v $domain ConfigPut
 /usr/local/openvpn_as/scripts/sacli -k vpn.server.routing.private_network.0 -v $address_space ConfigPut
