@@ -201,8 +201,7 @@
           {
             "name": "ipconfig-vpn",
             "properties": {
-              "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "[parameters('ipAddress')]",
+              "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('openvpnpublicIPAddressName'))]"
               },
