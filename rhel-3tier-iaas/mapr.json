@@ -89,7 +89,14 @@
       "metadata": {
         "description": "Virtual network address prefix"
       }
-    },    
+    },  
+    "vpnAddressPrefix": {
+      "type": "string",
+      "defaultValue": "172.25.144.32/28",
+      "metadata": {
+        "description": "VPN Virtual network address prefix"
+      }
+    },          
     "publicAccessCIDR": {
       "type": "string",
       "defaultValue": "*",
@@ -134,7 +141,8 @@
     "webIPAddressName": "[concat(parameters('vmIdentifier'),'COMMON-PIP')]",
     "webDnsLabel": "[concat('web',uniqueString(resourceGroup().id))]",
     "databaseNSGName": "[concat(parameters('vmIdentifier'), '-NSG')]",
-    "jumpNSGName": "[concat(parameters('vmIdentifier'),'-VPN-NSG')]",
+    "jumpNSGName": "[concat(parameters('vmIdentifier'),'-EDGE-NSG')]",
+    "vpnNSGName": "[concat(parameters('vmIdentifier'),'-VPN-NSG')]",
     "jumpIPAddressName": "gateway-pip",
     "jumpDnsLabel": "[concat('jump',uniqueString(resourceGroup().id))]",
     "availSetName": "[concat(parameters('vmIdentifier'),'-AVAIL-SET')]",
@@ -158,6 +166,7 @@
     "deploymentsVersion": "2016-09-01",
     "computeApiVersion": "2017-03-30",
     "vnetPublicSubnetName": "[concat(parameters('vmIdentifier'),'-EDGE-SUBNET')]",
+    "vpnPublicSubnetName": "[concat(parameters('vmIdentifier'),'-VPN-SUBNET')]",        
     "virtualNetworkId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "addressPrefix": "[parameters('vnetAddressPrefix')]",
     "fourDotSubnetPublic": "[concat(take(parameters('vnetPublicSubnetStartAddress'), add(lastIndexOf(parameters('vnetPublicSubnetStartAddress'), '.'), 1)), '0')]",
@@ -283,7 +292,16 @@
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpNSGName'))]"
               }
             }
-          }
+          },
+          {
+            "name": "[variables('vpnPublicSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('vpnAddressPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vpnNSGName'))]"
+              }
+            }
+          }          
         ]
       }
     },
@@ -358,13 +376,13 @@
             "value": "[parameters('openVpnPassword')]"
           },
           "addressPrefix": {
-            "value": "[variables('addressPrefix')]"
+            "value": "[parameters('vpnAddressPrefix')]"
           },
           "publicAccessCIDR": {
             "value": "[parameters('publicAccessCIDR')]"
           },
           "maprsgName": {
-            "value": "[variables('jumpNSGName')]"
+            "value": "[variables('vpnNSGName')]"
           },
           "location": {
             "value": "[resourceGroup().location]"
