@@ -85,14 +85,12 @@
     },
     "vnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "172.25.144.0/26",
       "metadata": {
         "description": "Virtual network address prefix"
       }
     },  
     "vpnAddressPrefix": {
       "type": "string",
-      "defaultValue": "172.25.144.32/28",
       "metadata": {
         "description": "VPN Virtual network address prefix"
       }
@@ -112,14 +110,12 @@
     },
     "vnetPublicSubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "172.25.144.48/28",
       "metadata": {
         "description": "Virtual network public subnet address prefix"
       }
     },
     "vnetClusterSubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "172.25.144.0/27",
       "metadata": {
         "description": "Virtual network cluster subnet address prefix"
       }
