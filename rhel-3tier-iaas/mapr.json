@@ -92,7 +92,7 @@
     "vpnAddressPrefix": {
       "type": "string",
       "metadata": {
-        "description": "VPN Virtual network address prefix"
+        "description": "VPN Virtual network subnet address prefix"
       }
     },      
     "vpnAddressSubnet": {
@@ -111,13 +111,13 @@
     "vnetPublicSubnetAddressPrefix": {
       "type": "string",
       "metadata": {
-        "description": "Virtual network public subnet address prefix"
+        "description": "Virtual network edge-subnet address prefix"
       }
     },
     "vnetClusterSubnetAddressPrefix": {
       "type": "string",
       "metadata": {
-        "description": "Virtual network cluster subnet address prefix"
+        "description": "Virtual network cluster-subnet address prefix"
       }
     },
 
@@ -284,15 +284,6 @@
               "addressPrefix": "[parameters('vnetClusterSubnetAddressPrefix')]", 
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNSGName'))]"
-              }
-            }
-          },
-          {
-            "name": "[variables('vnetPublicSubnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('vnetPublicSubnetAddressPrefix')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpNSGName'))]"
               }
             }
           },
