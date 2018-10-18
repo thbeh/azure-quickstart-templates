@@ -96,6 +96,12 @@
       "metadata": {
         "description": "VPN Virtual network address prefix"
       }
+    },      
+    "vpnAddressSubnet": {
+      "type": "string",
+      "metadata": {
+        "description": "VPN Virtual network address prefix"
+      }
     },          
     "publicAccessCIDR": {
       "type": "string",
@@ -170,7 +176,7 @@
     "virtualNetworkId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "addressPrefix": "[parameters('vnetAddressPrefix')]",
     "fourDotSubnetPublic": "[concat(take(parameters('vnetPublicSubnetStartAddress'), add(lastIndexOf(parameters('vnetPublicSubnetStartAddress'), '.'), 1)), '0')]",
-    "vpnSubnetPublic": "172.25.144.32",
+    "vpnSubnetPublic": "[parameters('vpnAddressSubnet')]",
     "subnetPrefixPublic": "[parameters('vnetPublicSubnetAddressPrefix')]",
     "subnetNamePublic": "[variables('vpnPublicSubnetName')]",
     "subnetRefPublic": "[concat(variables('virtualNetworkId'), '/subnets/', variables('subnetNamePublic'))]",
